@@ -22,6 +22,15 @@ Si ya tiene el codigo descargado localmente:
 cd switch-turbo-boost-plasmoid
 ```
 
+## Que hace cada script
+
+| Script | Que instala o elimina | Uso recomendado |
+| --- | --- | --- |
+| `install-plasmoid.sh` | Copia solo la interfaz del plasmoide desde `package/` a `~/.local/share/plasma/plasmoids/org.punchisoft.switchturbo/`. | Use este script despues de cambiar QML, iconos, idioma, textos, configuracion o `metadata.json`. |
+| `install-backend.sh` | Copia los helpers de `scripts/` a `/usr/local/libexec/switch-turbo-boost-plasmoid/` e instala la politica PolicyKit en `/usr/share/polkit-1/actions/org.punchisoft.switchturbo.policy`. | Use este script despues de cambiar los helpers Bash o la politica PolicyKit. Solicita permisos con `pkexec`. |
+| `install.sh` | Ejecuta primero `install-plasmoid.sh` y luego `install-backend.sh`. | Use este script para una instalacion completa o cuando quiera actualizar todo de una vez. |
+| `uninstall.sh` | Elimina el plasmoide local, los helpers del sistema y la politica PolicyKit. | Use este script para desinstalar completamente el proyecto. |
+
 ## Instalacion visual desde KDE Plasma
 
 Esta opcion instala solo la interfaz del plasmoid desde un archivo local.

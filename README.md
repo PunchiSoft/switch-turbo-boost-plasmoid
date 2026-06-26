@@ -79,6 +79,17 @@ switch-turbo-boost-plasmoid/
 
 Para una guia paso a paso, consulte `INSTALL.md`.
 
+### Scripts de instalacion
+
+El proyecto separa la interfaz del plasmoide y los helpers del sistema:
+
+| Script | Que hace | Cuando usarlo |
+| --- | --- | --- |
+| `install-plasmoid.sh` | Instala solo la interfaz QML en `~/.local/share/plasma/plasmoids/org.punchisoft.switchturbo/`. | Cuando se modifican archivos de `package/`, como QML, iconos, textos, idioma, configuracion o metadata. |
+| `install-backend.sh` | Instala los scripts de `scripts/` en `/usr/local/libexec/switch-turbo-boost-plasmoid/` y la politica PolicyKit en `/usr/share/polkit-1/actions/org.punchisoft.switchturbo.policy`. | Cuando se modifican los helpers Bash o la politica PolicyKit. Requiere autenticacion mediante `pkexec`. |
+| `install.sh` | Ejecuta `install-plasmoid.sh` y despues `install-backend.sh`. | Para una instalacion completa o para asegurarse de actualizar interfaz, backend y PolicyKit en una sola pasada. |
+| `uninstall.sh` | Elimina el plasmoide local, los helpers del sistema y la politica PolicyKit. | Para desinstalar completamente el proyecto. |
+
 ### Descargar desde Git
 
 ```bash
