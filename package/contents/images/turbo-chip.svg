@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <!--
+    SPDX-FileCopyrightText: 2026 Punchisoft
+    SPDX-License-Identifier: GPL-3.0-or-later
+  -->
+  <rect x="10" y="10" width="44" height="44" rx="12" fill="#1f242b"/>
+  <rect x="19" y="19" width="26" height="26" rx="6" fill="#313943"/>
+  <path d="M34 15v-7M24 15v-7M44 24h7M44 34h7M34 49v7M24 49v7M15 24H8M15 34H8" stroke="#9aa4af" stroke-width="3" stroke-linecap="round"/>
+  <path d="M34 17 23 34h8l-2 13 12-19h-8z" fill="#2fbf71"/>
+</svg>

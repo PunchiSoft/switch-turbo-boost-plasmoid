@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  SPDX-FileCopyrightText: 2026 Punchisoft
+  SPDX-License-Identifier: GPL-3.0-or-later
+-->
+<!DOCTYPE policyconfig PUBLIC
+ "-//freedesktop//DTD PolicyKit Policy Configuration 1.0//EN"
+ "http://www.freedesktop.org/standards/PolicyKit/1/policyconfig.dtd">
+<policyconfig>
+  <vendor>Punchisoft</vendor>
+  <vendor_url>https://github.com/punchisoft/switch-turbo-monitor</vendor_url>
+
+  <action id="org.punchisoft.switchturbo.set-on">
+    <description>Enable CPU Turbo Boost</description>
+    <description xml:lang="es">Activar Turbo Boost de la CPU</description>
+    <message>Authentication is required to enable CPU Turbo Boost.</message>
+    <message xml:lang="es">Se requiere autenticacion para activar Turbo Boost de la CPU.</message>
+    <defaults>
+      <allow_any>auth_admin</allow_any>
+      <allow_inactive>auth_admin</allow_inactive>
+      <allow_active>auth_admin_keep</allow_active>
+    </defaults>
+    <annotate key="org.freedesktop.policykit.exec.path">/usr/local/libexec/switch-turbo-boost-plasmoid/set-turbo-on.sh</annotate>
+  </action>
+
+  <action id="org.punchisoft.switchturbo.set-off">
+    <description>Disable CPU Turbo Boost</description>
+    <description xml:lang="es">Desactivar Turbo Boost de la CPU</description>
+    <message>Authentication is required to disable CPU Turbo Boost.</message>
+    <message xml:lang="es">Se requiere autenticacion para desactivar Turbo Boost de la CPU.</message>
+    <defaults>
+      <allow_any>auth_admin</allow_any>
+      <allow_inactive>auth_admin</allow_inactive>
+      <allow_active>auth_admin_keep</allow_active>
+    </defaults>
+    <annotate key="org.freedesktop.policykit.exec.path">/usr/local/libexec/switch-turbo-boost-plasmoid/set-turbo-off.sh</annotate>
+  </action>
+</policyconfig>

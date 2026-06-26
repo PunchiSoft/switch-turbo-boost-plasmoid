@@ -1,0 +1,18 @@
+# SPDX-FileCopyrightText: 2026 Punchisoft
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+# Generated package
+*.plasmoid
+
+# Local desktop / editor files
+.directory
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs and caches
+*.log
+.cache/
