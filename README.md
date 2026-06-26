@@ -5,7 +5,7 @@ SPDX-License-Identifier: GPL-3.0-or-later
 
 # Switch Turbo Boost Plasmoid
 
-Plasmoide liviano para KDE Plasma 6 en Fedora KDE. Muestra el estado de Turbo Boost en el panel y permite activarlo o desactivarlo con autenticacion de PolicyKit.
+Plasmoide liviano para el entorno de escritorio KDE Plasma 6. Muestra el estado de Turbo Boost en el panel y permite activarlo o desactivarlo con autenticacion de PolicyKit.
 
 Este proyecto es complementario a Switch Turbo Monitor. No reemplaza ni reescribe la aplicacion principal; solo cubre el interruptor de Turbo Boost.
 
@@ -26,12 +26,18 @@ Este proyecto es complementario a Switch Turbo Monitor. No reemplaza ni reescrib
 
 ## Compatibilidad
 
-- Fedora KDE.
-- KDE Plasma 6.
-- Wayland.
+- Entorno de escritorio KDE Plasma 6.
+- Sesion Plasma en Wayland o X11.
+- Linux con PolicyKit y `pkexec`.
 - CPU/kernel con alguno de estos controles:
   - `/sys/devices/system/cpu/cpufreq/boost`
   - `/sys/devices/system/cpu/intel_pstate/no_turbo`
+
+## Capturas
+
+![Switch Turbo Boost en el selector de widgets](Images/01.png)
+
+Las capturas del proyecto estan en `Images/`. No forman parte del paquete instalable del plasmoide; se incluyen para documentacion del repositorio.
 
 ## Estructura
 
@@ -45,6 +51,12 @@ switch-turbo-boost-plasmoid/
 ├── package/contents/ui/config/ConfigGeneral.qml
 ├── package/contents/images/
 │   └── turbo-chip.svg
+├── Images/
+│   ├── 00.png
+│   ├── 01.png
+│   ├── 02.png
+│   ├── 03.png
+│   └── 04.png
 ├── scripts/
 │   ├── get-cpu-vendor.sh
 │   ├── get-turbo-status.sh
@@ -66,6 +78,13 @@ switch-turbo-boost-plasmoid/
 ## Instalacion
 
 Para una guia paso a paso, consulte `INSTALL.md`.
+
+### Descargar desde Git
+
+```bash
+git clone https://github.com/PunchiSoft/switch-turbo-boost-plasmoid.git
+cd switch-turbo-boost-plasmoid
+```
 
 ### Instalacion visual desde KDE Plasma
 

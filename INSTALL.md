@@ -5,11 +5,18 @@ SPDX-License-Identifier: GPL-3.0-or-later
 
 # Instalacion de Switch Turbo Boost Plasmoid
 
-Guia rapida para instalar el plasmoide en Fedora KDE con Plasma 6.
+Guia rapida para instalar el plasmoide en el entorno de escritorio KDE Plasma 6.
 
-## 1. Entrar a la carpeta del proyecto
+## 1. Descargar el proyecto
 
-Desde la raiz de Switch Turbo Monitor:
+Desde Git:
+
+```bash
+git clone https://github.com/PunchiSoft/switch-turbo-boost-plasmoid.git
+cd switch-turbo-boost-plasmoid
+```
+
+Si ya tiene el codigo descargado localmente:
 
 ```bash
 cd switch-turbo-boost-plasmoid

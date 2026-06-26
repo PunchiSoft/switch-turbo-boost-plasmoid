@@ -8,7 +8,7 @@
  "http://www.freedesktop.org/standards/PolicyKit/1/policyconfig.dtd">
 <policyconfig>
   <vendor>Punchisoft</vendor>
-  <vendor_url>https://github.com/punchisoft/switch-turbo-monitor</vendor_url>
+  <vendor_url>https://github.com/PunchiSoft/switch-turbo-boost-plasmoid</vendor_url>
 
   <action id="org.punchisoft.switchturbo.set-on">
     <description>Enable CPU Turbo Boost</description>

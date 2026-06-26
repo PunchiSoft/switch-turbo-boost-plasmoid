@@ -48,8 +48,8 @@ PlasmoidItem {
     // Visual tokens
     // ############
     readonly property color onColor: "#2fbf71"
-    readonly property color offColor: "#b56b6b"
-    readonly property color unavailableColor: "#7b828c"
+    readonly property color offColor: "#7b828c"
+    readonly property color unavailableColor: "#59616b"
     readonly property color accentColor: available ? (turboOn ? onColor : offColor) : unavailableColor
     readonly property color indicatorColor: available ? accentColor : Kirigami.Theme.disabledTextColor
     readonly property string uiLanguage: Plasmoid.configuration.uiLanguage || "auto"
