@@ -19,6 +19,7 @@ Este proyecto es complementario a Switch Turbo Monitor. No reemplaza ni reescrib
 - Icono generico local de chip/turbo, sin logos de marca.
 - Texto AMD, Intel o CPU detectada segun el procesador.
 - Lectura al cargar, despues de cambiar el estado y cada 15 segundos.
+- Configuracion de icono del panel, icono del procesador automatico o personalizado, idioma y tamano del menu flotante.
 - Scripts externos Bash para consultar y modificar `/sys`.
 - Script externo Bash para detectar fabricante de CPU desde `/proc/cpuinfo`.
 - Cambios con `pkexec` y politica PolicyKit dedicada.
@@ -35,7 +36,17 @@ Este proyecto es complementario a Switch Turbo Monitor. No reemplaza ni reescrib
 
 ## Capturas
 
-![Switch Turbo Boost en el selector de widgets](Images/01.png)
+| Menu flotante | Selector de widgets |
+| --- | --- |
+| ![Menu flotante de Switch Turbo Boost](Images/00.png) | ![Switch Turbo Boost en el selector de widgets](Images/01.png) |
+
+| Preferencias | Acerca de |
+| --- | --- |
+| ![Preferencias de Switch Turbo Boost](Images/02.png) | ![Pagina Acerca de Switch Turbo Boost](Images/03.png) |
+
+| Atajos de teclado |
+| --- |
+| ![Atajos de teclado de Switch Turbo Boost](Images/04.png) |
 
 Las capturas del proyecto estan en `Images/`. No forman parte del paquete instalable del plasmoide; se incluyen para documentacion del repositorio.
 
@@ -50,7 +61,10 @@ switch-turbo-boost-plasmoid/
 ├── package/contents/ui/TurboSwitch.qml
 ├── package/contents/ui/config/ConfigGeneral.qml
 ├── package/contents/images/
-│   └── turbo-chip.svg
+│   ├── turbo-chip.svg
+│   ├── vendor-amd.svg
+│   ├── vendor-cpu.svg
+│   └── vendor-intel.svg
 ├── Images/
 │   ├── 00.png
 │   ├── 01.png

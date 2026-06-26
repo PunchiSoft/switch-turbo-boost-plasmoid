@@ -95,6 +95,15 @@ kquitapp6 plasmashell && kstart6 plasmashell
 3. Buscar **Switch Turbo Boost**.
 4. Arrastrarlo al panel.
 
+## Configuracion
+
+Desde la configuracion del plasmoide se puede ajustar:
+
+- Icono mostrado en el panel.
+- Icono del procesador mostrado en el menu flotante, con opciones automaticas, AMD, Intel, CPU, chip o un icono personalizado del sistema.
+- Idioma de la interfaz.
+- Ancho y alto preferidos del menu flotante.
+
 ## Probar funcionamiento
 
 Consultar estado:

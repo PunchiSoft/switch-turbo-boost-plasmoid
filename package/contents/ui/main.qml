@@ -53,6 +53,8 @@ PlasmoidItem {
     readonly property color accentColor: available ? (turboOn ? onColor : offColor) : unavailableColor
     readonly property color indicatorColor: available ? accentColor : Kirigami.Theme.disabledTextColor
     readonly property string uiLanguage: Plasmoid.configuration.uiLanguage || "auto"
+    readonly property int popupConfiguredWidth: Math.max(Kirigami.Units.gridUnit * 12, Number(Plasmoid.configuration.preferredPopupWidth || 252))
+    readonly property int popupConfiguredHeight: Math.max(Kirigami.Units.gridUnit * 10, Number(Plasmoid.configuration.preferredPopupHeight || 466))
     readonly property string effectiveUiLanguage: {
         if (uiLanguage === "es" || uiLanguage === "en") {
             return uiLanguage;
@@ -83,40 +85,62 @@ PlasmoidItem {
     // Icon selection
     // ##############
     readonly property string iconStyle: Plasmoid.configuration.iconStyle || "cpu"
-    readonly property var popupIcon: {
-        if (iconStyle === "project-chip" || iconStyle === "chip") {
+    readonly property string processorIconStyle: Plasmoid.configuration.processorIconStyle || "auto"
+    readonly property var panelIcon: root.iconSource(iconStyle)
+    readonly property var processorIcon: root.processorIconSource(processorIconStyle)
+
+    function iconSource(style) {
+        if (style === "project-chip" || style === "chip") {
             return Qt.resolvedUrl("../images/turbo-chip.svg");
         }
-        if (iconStyle === "bolt") {
+        if (style === "bolt") {
             return "flash-symbolic";
         }
-        if (iconStyle === "gauge") {
+        if (style === "gauge") {
             return "speedometer";
         }
-        if (iconStyle === "performance") {
+        if (style === "performance") {
             return "power-profile-performance-symbolic";
         }
-        if (iconStyle === "systemmonitor-cpu") {
+        if (style === "systemmonitor-cpu") {
             return "org.kde.plasma.systemmonitor.cpu";
         }
-        if (iconStyle === "cpu") {
+        if (style === "cpu") {
             return "cpu";
         }
-        if (iconStyle === "flash") {
+        if (style === "flash") {
             return "flash-symbolic";
         }
-        if (iconStyle === "speedometer") {
+        if (style === "speedometer") {
             return "speedometer";
         }
-        return iconStyle;
+        return style;
+    }
+
+    function processorIconSource(style) {
+        const normalizedStyle = style && style.length > 0 ? style : "auto";
+        const resolvedStyle = normalizedStyle === "auto" ? cpuVendor : normalizedStyle;
+        if (resolvedStyle === "amd") {
+            return Qt.resolvedUrl("../images/vendor-amd.svg");
+        }
+        if (resolvedStyle === "intel") {
+            return Qt.resolvedUrl("../images/vendor-intel.svg");
+        }
+        if (resolvedStyle === "project-chip") {
+            return Qt.resolvedUrl("../images/turbo-chip.svg");
+        }
+        if (resolvedStyle === "cpu" || resolvedStyle === "unknown") {
+            return Qt.resolvedUrl("../images/vendor-cpu.svg");
+        }
+        return root.iconSource(resolvedStyle);
     }
 
     Plasmoid.icon: inPanel ? "cpu-symbolic" : "cpu"
     Plasmoid.status: available ? PlasmaCore.Types.ActiveStatus : PlasmaCore.Types.PassiveStatus
     Plasmoid.busy: actionRunning
     preferredRepresentation: compactRepresentation
-    switchWidth: Kirigami.Units.gridUnit * 14
-    switchHeight: Kirigami.Units.gridUnit * 12
+    switchWidth: popupConfiguredWidth
+    switchHeight: popupConfiguredHeight
 
     // ################
     // Text helper
@@ -270,7 +294,7 @@ PlasmoidItem {
                 anchors.centerIn: parent
                 width: parent.width * 0.68
                 height: width
-                source: root.popupIcon
+                source: root.panelIcon
                 color: root.available ? root.indicatorColor : "#8a949f"
                 opacity: root.available ? 1 : 0.55
             }
@@ -293,8 +317,16 @@ PlasmoidItem {
     // Popup card
     // ############
     fullRepresentation: PlasmaExtras.Representation {
-        Layout.minimumWidth: Kirigami.Units.gridUnit * 14
-        Layout.minimumHeight: Kirigami.Units.gridUnit * 12
+        Layout.minimumWidth: root.popupConfiguredWidth
+        Layout.minimumHeight: root.popupConfiguredHeight
+        Layout.preferredWidth: root.popupConfiguredWidth
+        Layout.preferredHeight: root.popupConfiguredHeight
+        Layout.maximumWidth: root.popupConfiguredWidth
+        Layout.maximumHeight: root.popupConfiguredHeight
+        implicitWidth: root.popupConfiguredWidth
+        implicitHeight: root.popupConfiguredHeight
+        width: root.popupConfiguredWidth
+        height: root.popupConfiguredHeight
         collapseMarginsHint: true
 
         Rectangle {
@@ -334,8 +366,7 @@ PlasmoidItem {
                             anchors.centerIn: parent
                             width: parent.width * 0.7
                             height: width
-                            source: root.popupIcon
-                            color: root.indicatorColor
+                            source: root.processorIcon
                         }
                     }
 
@@ -444,13 +475,13 @@ PlasmoidItem {
 
                     PlasmaComponents3.Label {
                         Layout.fillWidth: true
-                        text: root.t("Estado actualizado", "Status updated")
+                        text: root.t("Comprobar estado", "Check status")
                         color: "#7f8994"
                         elide: Text.ElideRight
                     }
 
                     PlasmaComponents3.Label {
-                        text: root.lastReadText
+                        text: root.t("Ultima lectura: ", "Last read: ") + root.lastReadText
                         color: "#7f8994"
                     }
                 }

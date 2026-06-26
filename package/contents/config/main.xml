@@ -14,9 +14,21 @@
       <default>cpu</default>
       <label>Icon style</label>
     </entry>
+    <entry name="processorIconStyle" type="String">
+      <default>auto</default>
+      <label>Processor icon style</label>
+    </entry>
     <entry name="uiLanguage" type="String">
       <default>es</default>
       <label>Interface language</label>
+    </entry>
+    <entry name="preferredPopupWidth" type="Int">
+      <default>252</default>
+      <label>Preferred popup width</label>
+    </entry>
+    <entry name="preferredPopupHeight" type="Int">
+      <default>466</default>
+      <label>Preferred popup height</label>
     </entry>
   </group>
 </kcfg>
