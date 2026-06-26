@@ -15,7 +15,7 @@
       <label>Icon style</label>
     </entry>
     <entry name="uiLanguage" type="String">
-      <default>auto</default>
+      <default>es</default>
       <label>Interface language</label>
     </entry>
   </group>

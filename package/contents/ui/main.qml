@@ -53,6 +53,17 @@ PlasmoidItem {
     readonly property color accentColor: available ? (turboOn ? onColor : offColor) : unavailableColor
     readonly property color indicatorColor: available ? accentColor : Kirigami.Theme.disabledTextColor
     readonly property string uiLanguage: Plasmoid.configuration.uiLanguage || "auto"
+    readonly property string effectiveUiLanguage: {
+        if (uiLanguage === "es" || uiLanguage === "en") {
+            return uiLanguage;
+        }
+
+        const localeName = Qt.locale().name.toLowerCase();
+        if (localeName.startsWith("en")) {
+            return "en";
+        }
+        return "es";
+    }
     readonly property string stateLabel: available ? (turboOn ? root.t("ON", "ON") : root.t("OFF", "OFF")) : root.t("N/D", "N/A")
     readonly property string stateDescription: available
         ? (turboOn ? root.t("Permite mayor rendimiento cuando el sistema lo requiere.", "Allows higher performance when the system needs it.")
@@ -111,13 +122,13 @@ PlasmoidItem {
     // Text helper
     // ################
     function t(es, en) {
-        if (uiLanguage === "es") {
+        if (effectiveUiLanguage === "es") {
             return es;
         }
-        if (uiLanguage === "en") {
+        if (effectiveUiLanguage === "en") {
             return en;
         }
-        return i18n(es);
+        return es;
     }
 
     // ################

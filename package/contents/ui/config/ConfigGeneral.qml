@@ -110,7 +110,7 @@ Kirigami.FormLayout {
         id: languageModel
 
         ListElement {
-            label: "Automatico"
+            label: "Automático"
             value: "auto"
         }
         ListElement {
