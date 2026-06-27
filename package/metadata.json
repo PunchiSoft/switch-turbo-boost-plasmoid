@@ -18,7 +18,7 @@
         "License": "GPL-3.0-or-later",
         "Name": "Switch Turbo Boost",
         "Name[es]": "Switch Turbo Boost",
-        "Version": "0.1.8",
+        "Version": "0.2.0",
         "Website": "https://github.com/PunchiSoft/switch-turbo-boost-plasmoid"
     },
     "X-Plasma-API-Minimum-Version": "6.0",
