@@ -79,7 +79,7 @@ Durante este paso se solicitara autenticacion de administrador mediante PolicyKi
 El instalador copia:
 
 - El plasmoide a `~/.local/share/plasma/plasmoids/org.punchisoft.switchturbo/`
-- Los scripts del sistema a `/usr/local/libexec/switch-turbo-boost-plasmoid/`, incluido `get-cpu-vendor.sh`
+- Los scripts del sistema a `/usr/local/libexec/switch-turbo-boost-plasmoid/`, incluidos `get-cpu-info.sh` y `get-cpu-vendor.sh`
 - La politica PolicyKit a `/usr/share/polkit-1/actions/org.punchisoft.switchturbo.policy`
 
 ### 3. Reiniciar Plasma si el widget no aparece
@@ -102,6 +102,7 @@ Desde la configuracion del plasmoide se puede ajustar:
 - Icono mostrado en el panel.
 - Icono del procesador mostrado en el menu flotante, con opciones automaticas, AMD, Intel, CPU, chip o un icono personalizado del sistema.
 - Idioma de la interfaz.
+- Apariencia del menu flotante: tema automatico y colores personalizados.
 - Ancho y alto preferidos del menu flotante.
 
 ## Probar funcionamiento
@@ -116,6 +117,12 @@ Detectar fabricante:
 
 ```bash
 /usr/local/libexec/switch-turbo-boost-plasmoid/get-cpu-vendor.sh
+```
+
+Detectar fabricante y modelo:
+
+```bash
+/usr/local/libexec/switch-turbo-boost-plasmoid/get-cpu-info.sh
 ```
 
 Activar Turbo Boost:

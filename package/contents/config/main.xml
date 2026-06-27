@@ -30,5 +30,29 @@
       <default>466</default>
       <label>Preferred popup height</label>
     </entry>
+    <entry name="themeMode" type="String">
+      <default>auto</default>
+      <label>Popup theme mode</label>
+    </entry>
+    <entry name="customBackgroundColor" type="String">
+      <default>auto</default>
+      <label>Custom popup background color</label>
+    </entry>
+    <entry name="customTextColor" type="String">
+      <default>auto</default>
+      <label>Custom primary text color</label>
+    </entry>
+    <entry name="customMutedTextColor" type="String">
+      <default>auto</default>
+      <label>Custom secondary text color</label>
+    </entry>
+    <entry name="customAccentColor" type="String">
+      <default>auto</default>
+      <label>Custom active accent color</label>
+    </entry>
+    <entry name="customInactiveColor" type="String">
+      <default>auto</default>
+      <label>Custom inactive accent color</label>
+    </entry>
   </group>
 </kcfg>

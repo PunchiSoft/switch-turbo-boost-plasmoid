@@ -23,6 +23,7 @@ PlasmoidItem {
     // ################
     readonly property string helperBase: "/usr/local/libexec/switch-turbo-boost-plasmoid"
     readonly property string statusCommand: helperBase + "/get-turbo-status.sh"
+    readonly property string cpuInfoCommand: helperBase + "/get-cpu-info.sh"
     readonly property string vendorCommand: helperBase + "/get-cpu-vendor.sh"
     readonly property string onCommand: "pkexec " + helperBase + "/set-turbo-on.sh"
     readonly property string offCommand: "pkexec " + helperBase + "/set-turbo-off.sh"
@@ -42,14 +43,21 @@ PlasmoidItem {
     property string statusText: root.t("Comprobando...", "Checking...")
     property string detailText: ""
     property string cpuVendor: "unknown"
+    property string cpuModelName: ""
     property string lastReadText: root.t("Pendiente", "Pending")
 
     // ############
     // Visual tokens
     // ############
-    readonly property color onColor: "#2fbf71"
-    readonly property color offColor: "#7b828c"
-    readonly property color unavailableColor: "#59616b"
+    readonly property string themeMode: Plasmoid.configuration.themeMode || "auto"
+    readonly property bool customTheme: themeMode === "custom"
+    readonly property color popupBackgroundColor: customTheme ? root.safeColor(Plasmoid.configuration.customBackgroundColor, Kirigami.Theme.backgroundColor) : Kirigami.Theme.backgroundColor
+    readonly property color primaryTextColor: customTheme ? root.safeColor(Plasmoid.configuration.customTextColor, Kirigami.Theme.textColor) : Kirigami.Theme.textColor
+    readonly property color secondaryTextColor: customTheme ? root.safeColor(Plasmoid.configuration.customMutedTextColor, Kirigami.Theme.disabledTextColor) : Kirigami.Theme.disabledTextColor
+    readonly property color subtleTextColor: root.withAlpha(primaryTextColor, 0.66)
+    readonly property color onColor: customTheme ? root.safeColor(Plasmoid.configuration.customAccentColor, Kirigami.Theme.positiveTextColor) : Kirigami.Theme.positiveTextColor
+    readonly property color offColor: customTheme ? root.safeColor(Plasmoid.configuration.customInactiveColor, Kirigami.Theme.disabledTextColor) : Kirigami.Theme.disabledTextColor
+    readonly property color unavailableColor: Kirigami.Theme.disabledTextColor
     readonly property color accentColor: available ? (turboOn ? onColor : offColor) : unavailableColor
     readonly property color indicatorColor: available ? accentColor : Kirigami.Theme.disabledTextColor
     readonly property string uiLanguage: Plasmoid.configuration.uiLanguage || "auto"
@@ -70,7 +78,7 @@ PlasmoidItem {
     readonly property string stateDescription: available
         ? (turboOn ? root.t("Permite mayor rendimiento cuando el sistema lo requiere.", "Allows higher performance when the system needs it.")
                    : root.t("Prioriza temperatura, ruido y consumo energetico.", "Prioritizes temperature, noise, and power consumption."))
-        : root.t("No se encontro un control de Turbo Boost compatible en este equipo.", "No compatible Turbo Boost control was found on this computer.")
+        : root.t("No se encontro un control de boost compatible en este equipo.", "No compatible boost control was found on this computer.")
     readonly property string vendorText: {
         if (cpuVendor === "amd") {
             return root.t("AMD detectado", "AMD detected");
@@ -80,6 +88,16 @@ PlasmoidItem {
         }
         return root.t("CPU detectada", "CPU detected");
     }
+    readonly property string boostTechnologyText: {
+        if (cpuVendor === "amd") {
+            return root.t("Precision Boost / Core Performance Boost", "Precision Boost / Core Performance Boost");
+        }
+        if (cpuVendor === "intel") {
+            return root.t("Turbo Boost", "Turbo Boost");
+        }
+        return root.t("CPU Boost", "CPU Boost");
+    }
+    readonly property string boostTechnologyLabel: root.t("Tecnologia: ", "Technology: ") + root.boostTechnologyText
 
     // ##############
     // Icon selection
@@ -155,6 +173,21 @@ PlasmoidItem {
         return es;
     }
 
+    function withAlpha(colorValue, alpha) {
+        return Qt.rgba(colorValue.r, colorValue.g, colorValue.b, alpha);
+    }
+
+    function safeColor(colorText, fallbackColor) {
+        const normalized = String(colorText || "");
+        if (normalized.toLowerCase() === "auto") {
+            return fallbackColor;
+        }
+        if (/^#[0-9a-fA-F]{6}$/.test(normalized)) {
+            return normalized;
+        }
+        return fallbackColor;
+    }
+
     // ################
     // Command handling
     // ################
@@ -178,13 +211,24 @@ PlasmoidItem {
     }
 
     function refreshVendor() {
-        executable.connectSource(vendorCommand);
+        executable.connectSource(cpuInfoCommand);
+    }
+
+    function valueFromOutput(stdout, key) {
+        const lines = stdout.split("\n");
+        const prefix = key + "=";
+        for (let index = 0; index < lines.length; index += 1) {
+            if (lines[index].startsWith(prefix)) {
+                return lines[index].slice(prefix.length).trim();
+            }
+        }
+        return "";
     }
 
     function setStatusFromOutput(stdout, stderr, code) {
         if (code !== 0) {
             available = false;
-            statusText = root.t("Turbo Boost no disponible", "Turbo Boost unavailable");
+            statusText = root.boostTechnologyText + root.t(" no disponible", " unavailable");
             detailText = stderr || stdout;
             return;
         }
@@ -193,13 +237,13 @@ PlasmoidItem {
         if (normalized === "on") {
             turboOn = true;
             available = true;
-            statusText = root.t("Turbo Boost ON", "Turbo Boost ON");
+            statusText = root.boostTechnologyText + " " + root.t("ON", "ON");
             detailText = "";
             lastReadText = root.t("ahora", "now");
         } else if (normalized === "off") {
             turboOn = false;
             available = true;
-            statusText = root.t("Turbo Boost OFF", "Turbo Boost OFF");
+            statusText = root.boostTechnologyText + " " + root.t("OFF", "OFF");
             detailText = "";
             lastReadText = root.t("ahora", "now");
         } else {
@@ -239,9 +283,26 @@ PlasmoidItem {
                 return;
             }
 
+            if (sourceName === root.cpuInfoCommand) {
+                if (code !== 0) {
+                    executable.connectSource(root.vendorCommand);
+                    return;
+                }
+                const normalizedVendor = root.valueFromOutput(stdout, "vendor").toLowerCase();
+                root.cpuVendor = ["amd", "intel"].includes(normalizedVendor) ? normalizedVendor : "unknown";
+                root.cpuModelName = root.valueFromOutput(stdout, "model");
+                if (root.available && !root.actionRunning) {
+                    root.statusText = root.boostTechnologyText + " " + (root.turboOn ? root.t("ON", "ON") : root.t("OFF", "OFF"));
+                }
+                return;
+            }
+
             if (sourceName === root.vendorCommand) {
                 const normalizedVendor = stdout.toLowerCase();
                 root.cpuVendor = ["amd", "intel"].includes(normalizedVendor) ? normalizedVendor : "unknown";
+                if (root.available && !root.actionRunning) {
+                    root.statusText = root.boostTechnologyText + " " + (root.turboOn ? root.t("ON", "ON") : root.t("OFF", "OFF"));
+                }
                 return;
             }
 
@@ -286,8 +347,8 @@ PlasmoidItem {
             width: Math.min(parent.width, parent.height) - Kirigami.Units.smallSpacing
             height: width
             radius: Kirigami.Units.smallSpacing
-            color: compact.containsMouse || root.expanded ? Qt.rgba(root.accentColor.r, root.accentColor.g, root.accentColor.b, 0.16) : "transparent"
-            border.color: Qt.rgba(root.accentColor.r, root.accentColor.g, root.accentColor.b, root.available ? 0.62 : 0.28)
+            color: compact.containsMouse || root.expanded ? root.withAlpha(root.accentColor, 0.16) : "transparent"
+            border.color: root.withAlpha(root.accentColor, root.available ? 0.62 : 0.28)
             border.width: 1
 
             Kirigami.Icon {
@@ -295,7 +356,7 @@ PlasmoidItem {
                 width: parent.width * 0.68
                 height: width
                 source: root.panelIcon
-                color: root.available ? root.indicatorColor : "#8a949f"
+                color: root.available ? root.indicatorColor : Kirigami.Theme.disabledTextColor
                 opacity: root.available ? 1 : 0.55
             }
 
@@ -307,7 +368,7 @@ PlasmoidItem {
                 anchors.bottom: parent.bottom
                 anchors.margins: 1
                 color: root.indicatorColor
-                border.color: "#1a1f25"
+                border.color: root.withAlpha(root.primaryTextColor, 0.22)
                 border.width: 1
             }
         }
@@ -332,18 +393,9 @@ PlasmoidItem {
         Rectangle {
             anchors.fill: parent
             radius: Kirigami.Units.smallSpacing * 1.5
-            border.color: Qt.rgba(1, 1, 1, 0.10)
+            color: root.popupBackgroundColor
+            border.color: root.withAlpha(root.primaryTextColor, 0.12)
             border.width: 1
-            gradient: Gradient {
-                GradientStop {
-                    position: 0
-                    color: "#242a32"
-                }
-                GradientStop {
-                    position: 1
-                    color: "#171b21"
-                }
-            }
 
             ColumnLayout {
                 anchors.fill: parent
@@ -358,8 +410,8 @@ PlasmoidItem {
                         Layout.preferredWidth: Kirigami.Units.gridUnit * 2.4
                         Layout.preferredHeight: Kirigami.Units.gridUnit * 2.4
                         radius: Kirigami.Units.smallSpacing
-                        color: Qt.rgba(root.accentColor.r, root.accentColor.g, root.accentColor.b, 0.13)
-                        border.color: Qt.rgba(root.accentColor.r, root.accentColor.g, root.accentColor.b, 0.36)
+                        color: root.withAlpha(root.accentColor, 0.13)
+                        border.color: root.withAlpha(root.accentColor, 0.36)
                         border.width: 1
 
                         Kirigami.Icon {
@@ -378,14 +430,23 @@ PlasmoidItem {
                             Layout.fillWidth: true
                             level: 4
                             text: root.t("Switch Turbo Boost", "Switch Turbo Boost")
-                            color: "#f3f6f8"
+                            color: root.primaryTextColor
                             elide: Text.ElideRight
                         }
 
                         PlasmaComponents3.Label {
                             Layout.fillWidth: true
                             text: root.vendorText
-                            color: "#aab4bf"
+                            color: root.subtleTextColor
+                            elide: Text.ElideRight
+                        }
+
+                        PlasmaComponents3.Label {
+                            Layout.fillWidth: true
+                            visible: root.cpuModelName.length > 0
+                            text: root.cpuModelName
+                            color: root.secondaryTextColor
+                            font.pointSize: Kirigami.Theme.smallFont.pointSize
                             elide: Text.ElideRight
                         }
                     }
@@ -402,7 +463,7 @@ PlasmoidItem {
                 Rectangle {
                     Layout.fillWidth: true
                     Layout.preferredHeight: 1
-                    color: Qt.rgba(1, 1, 1, 0.08)
+                    color: root.withAlpha(root.primaryTextColor, 0.10)
                 }
 
                 ColumnLayout {
@@ -411,16 +472,23 @@ PlasmoidItem {
                     spacing: Kirigami.Units.smallSpacing
 
                     PlasmaComponents3.Label {
+                        Layout.fillWidth: true
                         Layout.alignment: Qt.AlignHCenter
-                        text: root.t("Turbo Boost", "Turbo Boost")
-                        color: "#c8d0d8"
+                        text: root.boostTechnologyLabel
+                        color: root.subtleTextColor
                         font.bold: true
+                        horizontalAlignment: Text.AlignHCenter
+                        wrapMode: Text.WordWrap
+                        maximumLineCount: 2
+                        elide: Text.ElideRight
                     }
 
                     TurboSwitch {
                         checked: root.turboOn && root.available
                         accentColor: root.onColor
                         inactiveColor: root.offColor
+                        surfaceColor: root.popupBackgroundColor
+                        knobColor: root.primaryTextColor
                         onText: root.t("ON", "ON")
                         offText: root.t("OFF", "OFF")
                         enabled: root.available && !root.actionRunning
@@ -433,7 +501,7 @@ PlasmoidItem {
                     text: root.stateDescription
                     wrapMode: Text.WordWrap
                     horizontalAlignment: Text.AlignHCenter
-                    color: "#aab4bf"
+                    color: root.subtleTextColor
                     maximumLineCount: 2
                     elide: Text.ElideRight
                 }
@@ -446,8 +514,8 @@ PlasmoidItem {
                         Layout.preferredWidth: Kirigami.Units.gridUnit * 1.8
                         Layout.preferredHeight: Kirigami.Units.gridUnit * 1.45
                         radius: Kirigami.Units.smallSpacing
-                        color: refreshMouse.containsMouse ? Qt.rgba(1, 1, 1, 0.12) : Qt.rgba(1, 1, 1, 0.06)
-                        border.color: Qt.rgba(1, 1, 1, 0.10)
+                        color: refreshMouse.containsMouse ? root.withAlpha(root.primaryTextColor, 0.12) : root.withAlpha(root.primaryTextColor, 0.06)
+                        border.color: root.withAlpha(root.primaryTextColor, 0.10)
                         border.width: 1
                         opacity: root.actionRunning ? 0.55 : 1
 
@@ -456,7 +524,7 @@ PlasmoidItem {
                             width: Kirigami.Units.iconSizes.small
                             height: width
                             source: "view-refresh-symbolic"
-                            color: "#c8d0d8"
+                            color: root.subtleTextColor
                         }
 
                         MouseArea {
@@ -476,13 +544,13 @@ PlasmoidItem {
                     PlasmaComponents3.Label {
                         Layout.fillWidth: true
                         text: root.t("Comprobar estado", "Check status")
-                        color: "#7f8994"
+                        color: root.secondaryTextColor
                         elide: Text.ElideRight
                     }
 
                     PlasmaComponents3.Label {
                         text: root.t("Ultima lectura: ", "Last read: ") + root.lastReadText
-                        color: "#7f8994"
+                        color: root.secondaryTextColor
                     }
                 }
 
@@ -491,7 +559,7 @@ PlasmoidItem {
                     visible: root.detailText.length > 0
                     text: root.detailText
                     wrapMode: Text.WordWrap
-                    color: "#b7c0ca"
+                    color: root.subtleTextColor
                     opacity: 0.75
                 }
             }

@@ -15,6 +15,8 @@ Rectangle {
     property bool checked: false
     property color accentColor: "#2fbf71"
     property color inactiveColor: "#7b828c"
+    property color surfaceColor: Kirigami.Theme.backgroundColor
+    property color knobColor: Kirigami.Theme.textColor
     property string onText: "ON"
     property string offText: "OFF"
 
@@ -25,7 +27,7 @@ Rectangle {
     Layout.preferredHeight: Kirigami.Units.gridUnit * 2
     radius: height / 2
     color: !enabled
-        ? "#262b32"
+        ? Qt.rgba(surfaceColor.r, surfaceColor.g, surfaceColor.b, 0.55)
         : mouse.containsMouse
             ? Qt.rgba(activeColor.r, activeColor.g, activeColor.b, 0.24)
             : Qt.rgba(activeColor.r, activeColor.g, activeColor.b, 0.16)
@@ -43,8 +45,8 @@ Rectangle {
         radius: width / 2
         y: Kirigami.Units.smallSpacing / 2
         x: control.checked ? parent.width - width - y : y
-        color: "#f4f7fa"
-        border.color: Qt.rgba(0, 0, 0, 0.18)
+        color: control.knobColor
+        border.color: Qt.rgba(control.activeColor.r, control.activeColor.g, control.activeColor.b, 0.24)
         border.width: 1
 
         Behavior on x {

@@ -5,6 +5,7 @@
 
 import QtQuick
 import QtQuick.Controls as QQC2
+import QtQuick.Dialogs as Dialogs
 import QtQuick.Layouts
 
 import org.kde.iconthemes as KIconThemes
@@ -18,6 +19,15 @@ Kirigami.FormLayout {
     property string cfg_uiLanguage: "auto"
     property alias cfg_preferredPopupWidth: popupWidthSpin.value
     property alias cfg_preferredPopupHeight: popupHeightSpin.value
+    property string cfg_themeMode: "auto"
+    property alias cfg_customBackgroundColor: backgroundColorField.text
+    property alias cfg_customTextColor: textColorField.text
+    property alias cfg_customMutedTextColor: mutedTextColorField.text
+    property alias cfg_customAccentColor: accentColorField.text
+    property alias cfg_customInactiveColor: inactiveColorField.text
+
+    readonly property bool customThemeSelected: cfg_themeMode === "custom"
+    property var colorDialogTarget: null
 
     // ###############
     // Icon selection
@@ -89,6 +99,28 @@ Kirigami.FormLayout {
         return normalized;
     }
 
+    function colorPreview(colorText, fallbackColor) {
+        if (/^#[0-9a-fA-F]{6}$/.test(colorText)) {
+            return colorText;
+        }
+        return fallbackColor;
+    }
+
+    function hexPair(value) {
+        const hex = Math.max(0, Math.min(255, Math.round(value * 255))).toString(16);
+        return hex.length === 1 ? "0" + hex : hex;
+    }
+
+    function colorToHex(colorValue) {
+        return "#" + hexPair(colorValue.r) + hexPair(colorValue.g) + hexPair(colorValue.b);
+    }
+
+    function openColorDialog(field, fallbackColor) {
+        colorDialogTarget = field;
+        colorDialog.selectedColor = /^#[0-9a-fA-F]{6}$/.test(field.text) ? field.text : fallbackColor;
+        colorDialog.open();
+    }
+
     Component.onCompleted: cfg_iconStyle = normalizeIconName(cfg_iconStyle)
 
     KIconThemes.IconDialog {
@@ -103,14 +135,19 @@ Kirigami.FormLayout {
         onIconNameChanged: iconName => page.cfg_processorIconStyle = page.normalizeIconName(iconName)
     }
 
-    QQC2.Label {
-        Kirigami.FormData.label: i18n("Icono del panel:")
-        text: i18n("Haz clic en la miniatura para elegir un icono del sistema.")
-        wrapMode: Text.WordWrap
+    Dialogs.ColorDialog {
+        id: colorDialog
+
+        title: i18n("Seleccionar color")
+        onAccepted: {
+            if (page.colorDialogTarget) {
+                page.colorDialogTarget.text = page.colorToHex(selectedColor);
+            }
+        }
     }
 
     RowLayout {
-        Kirigami.FormData.label: ""
+        Kirigami.FormData.label: i18n("Icono del panel:")
         spacing: Kirigami.Units.smallSpacing
 
         QQC2.Button {
@@ -136,6 +173,13 @@ Kirigami.FormLayout {
             elide: Text.ElideRight
             opacity: 0.75
         }
+    }
+
+    QQC2.Label {
+        Kirigami.FormData.label: ""
+        text: i18n("Elige el icono que se muestra en la barra o panel de Plasma.")
+        wrapMode: Text.WordWrap
+        opacity: 0.75
     }
 
     QQC2.Button {
@@ -213,7 +257,7 @@ Kirigami.FormLayout {
 
     QQC2.Label {
         Kirigami.FormData.label: ""
-        text: i18n("Haz clic en la miniatura para elegir un icono personalizado del sistema.")
+        text: i18n("Elige el icono que aparece dentro del menu flotante del plasmoide.")
         wrapMode: Text.WordWrap
         opacity: 0.75
     }
@@ -258,6 +302,247 @@ Kirigami.FormLayout {
         }
         onActivated: function(index) {
             page.cfg_uiLanguage = languageModel.get(index).value;
+        }
+    }
+
+    Item {
+        Kirigami.FormData.isSection: true
+    }
+
+    // ############
+    // Visual theme
+    // ############
+    ListModel {
+        id: themeModeModel
+
+        ListElement {
+            label: "Automático"
+            value: "auto"
+        }
+        ListElement {
+            label: "Personalizado"
+            value: "custom"
+        }
+    }
+
+    QQC2.ComboBox {
+        id: themeModeCombo
+
+        Kirigami.FormData.label: i18n("Apariencia:")
+        textRole: "label"
+        valueRole: "value"
+        model: themeModeModel
+        Component.onCompleted: {
+            for (let i = 0; i < themeModeModel.count; i++) {
+                if (themeModeModel.get(i).value === page.cfg_themeMode) {
+                    currentIndex = i;
+                    return;
+                }
+            }
+            currentIndex = 0;
+        }
+        onActivated: function(index) {
+            page.cfg_themeMode = themeModeModel.get(index).value;
+        }
+    }
+
+    RowLayout {
+        Kirigami.FormData.label: i18n("Fondo:")
+        enabled: page.customThemeSelected
+        spacing: Kirigami.Units.smallSpacing
+
+        Rectangle {
+            Layout.preferredWidth: Kirigami.Units.iconSizes.smallMedium
+            Layout.preferredHeight: Layout.preferredWidth
+            radius: Kirigami.Units.smallSpacing / 2
+            color: page.colorPreview(backgroundColorField.text, Kirigami.Theme.backgroundColor)
+            border.color: Kirigami.Theme.disabledTextColor
+            border.width: 1
+
+            MouseArea {
+                anchors.fill: parent
+                cursorShape: Qt.PointingHandCursor
+                onClicked: page.openColorDialog(backgroundColorField, Kirigami.Theme.backgroundColor)
+            }
+        }
+
+        QQC2.TextField {
+            id: backgroundColorField
+
+            Layout.fillWidth: true
+            text: "auto"
+            placeholderText: i18n("auto o #242a32")
+            validator: RegularExpressionValidator {
+                regularExpression: /^(auto|#[0-9a-fA-F]{6})$/
+            }
+        }
+
+        QQC2.Button {
+            text: i18n("Auto")
+            onClicked: backgroundColorField.text = "auto"
+        }
+    }
+
+    RowLayout {
+        Kirigami.FormData.label: i18n("Texto principal:")
+        enabled: page.customThemeSelected
+        spacing: Kirigami.Units.smallSpacing
+
+        Rectangle {
+            Layout.preferredWidth: Kirigami.Units.iconSizes.smallMedium
+            Layout.preferredHeight: Layout.preferredWidth
+            radius: Kirigami.Units.smallSpacing / 2
+            color: page.colorPreview(textColorField.text, Kirigami.Theme.textColor)
+            border.color: Kirigami.Theme.disabledTextColor
+            border.width: 1
+
+            MouseArea {
+                anchors.fill: parent
+                cursorShape: Qt.PointingHandCursor
+                onClicked: page.openColorDialog(textColorField, Kirigami.Theme.textColor)
+            }
+        }
+
+        QQC2.TextField {
+            id: textColorField
+
+            Layout.fillWidth: true
+            text: "auto"
+            placeholderText: i18n("auto o #f3f6f8")
+            validator: RegularExpressionValidator {
+                regularExpression: /^(auto|#[0-9a-fA-F]{6})$/
+            }
+        }
+
+        QQC2.Button {
+            text: i18n("Auto")
+            onClicked: textColorField.text = "auto"
+        }
+    }
+
+    RowLayout {
+        Kirigami.FormData.label: i18n("Texto secundario:")
+        enabled: page.customThemeSelected
+        spacing: Kirigami.Units.smallSpacing
+
+        Rectangle {
+            Layout.preferredWidth: Kirigami.Units.iconSizes.smallMedium
+            Layout.preferredHeight: Layout.preferredWidth
+            radius: Kirigami.Units.smallSpacing / 2
+            color: page.colorPreview(mutedTextColorField.text, Kirigami.Theme.disabledTextColor)
+            border.color: Kirigami.Theme.disabledTextColor
+            border.width: 1
+
+            MouseArea {
+                anchors.fill: parent
+                cursorShape: Qt.PointingHandCursor
+                onClicked: page.openColorDialog(mutedTextColorField, Kirigami.Theme.disabledTextColor)
+            }
+        }
+
+        QQC2.TextField {
+            id: mutedTextColorField
+
+            Layout.fillWidth: true
+            text: "auto"
+            placeholderText: i18n("auto o #7f8994")
+            validator: RegularExpressionValidator {
+                regularExpression: /^(auto|#[0-9a-fA-F]{6})$/
+            }
+        }
+
+        QQC2.Button {
+            text: i18n("Auto")
+            onClicked: mutedTextColorField.text = "auto"
+        }
+    }
+
+    RowLayout {
+        Kirigami.FormData.label: i18n("Color ON:")
+        enabled: page.customThemeSelected
+        spacing: Kirigami.Units.smallSpacing
+
+        Rectangle {
+            Layout.preferredWidth: Kirigami.Units.iconSizes.smallMedium
+            Layout.preferredHeight: Layout.preferredWidth
+            radius: Kirigami.Units.smallSpacing / 2
+            color: page.colorPreview(accentColorField.text, Kirigami.Theme.positiveTextColor)
+            border.color: Kirigami.Theme.disabledTextColor
+            border.width: 1
+
+            MouseArea {
+                anchors.fill: parent
+                cursorShape: Qt.PointingHandCursor
+                onClicked: page.openColorDialog(accentColorField, Kirigami.Theme.positiveTextColor)
+            }
+        }
+
+        QQC2.TextField {
+            id: accentColorField
+
+            Layout.fillWidth: true
+            text: "auto"
+            placeholderText: i18n("auto o #2fbf71")
+            validator: RegularExpressionValidator {
+                regularExpression: /^(auto|#[0-9a-fA-F]{6})$/
+            }
+        }
+
+        QQC2.Button {
+            text: i18n("Auto")
+            onClicked: accentColorField.text = "auto"
+        }
+    }
+
+    RowLayout {
+        Kirigami.FormData.label: i18n("Color OFF:")
+        enabled: page.customThemeSelected
+        spacing: Kirigami.Units.smallSpacing
+
+        Rectangle {
+            Layout.preferredWidth: Kirigami.Units.iconSizes.smallMedium
+            Layout.preferredHeight: Layout.preferredWidth
+            radius: Kirigami.Units.smallSpacing / 2
+            color: page.colorPreview(inactiveColorField.text, Kirigami.Theme.disabledTextColor)
+            border.color: Kirigami.Theme.disabledTextColor
+            border.width: 1
+
+            MouseArea {
+                anchors.fill: parent
+                cursorShape: Qt.PointingHandCursor
+                onClicked: page.openColorDialog(inactiveColorField, Kirigami.Theme.disabledTextColor)
+            }
+        }
+
+        QQC2.TextField {
+            id: inactiveColorField
+
+            Layout.fillWidth: true
+            text: "auto"
+            placeholderText: i18n("auto o #7b828c")
+            validator: RegularExpressionValidator {
+                regularExpression: /^(auto|#[0-9a-fA-F]{6})$/
+            }
+        }
+
+        QQC2.Button {
+            text: i18n("Auto")
+            onClicked: inactiveColorField.text = "auto"
+        }
+    }
+
+    QQC2.Button {
+        Kirigami.FormData.label: ""
+        text: i18n("Restablecer apariencia")
+        icon.name: "edit-reset"
+        onClicked: {
+            page.cfg_themeMode = "auto";
+            themeModeCombo.currentIndex = 0;
+            backgroundColorField.text = "auto";
+            textColorField.text = "auto";
+            mutedTextColorField.text = "auto";
+            accentColorField.text = "auto";
+            inactiveColorField.text = "auto";
         }
     }
 

@@ -22,6 +22,7 @@ printf 'Instalando helpers privilegiados mediante PolicyKit...\n'
 pkexec /bin/sh -c "
 set -eu
 install -d -m 0755 '$HELPER_DIR'
+install -o root -g root -m 0755 '$PROJECT_DIR/scripts/get-cpu-info.sh' '$HELPER_DIR/get-cpu-info.sh'
 install -o root -g root -m 0755 '$PROJECT_DIR/scripts/get-cpu-vendor.sh' '$HELPER_DIR/get-cpu-vendor.sh'
 install -o root -g root -m 0755 '$PROJECT_DIR/scripts/get-turbo-status.sh' '$HELPER_DIR/get-turbo-status.sh'
 install -o root -g root -m 0755 '$PROJECT_DIR/scripts/set-turbo-on.sh' '$HELPER_DIR/set-turbo-on.sh'

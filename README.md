@@ -16,10 +16,12 @@ Este proyecto es complementario a Switch Turbo Monitor. No reemplaza ni reescrib
 - Menu flotante con estado, descripcion y control ON/OFF.
 - Indicador verde cuando Turbo Boost esta ON.
 - Indicador gris cuando Turbo Boost esta OFF.
-- Icono generico local de chip/turbo, sin logos de marca.
+- Iconos locales de procesador basados en Papirus Icon Theme.
 - Texto AMD, Intel o CPU detectada segun el procesador.
+- Nombre del modelo de CPU debajo del fabricante detectado cuando esta disponible.
 - Lectura al cargar, despues de cambiar el estado y cada 15 segundos.
 - Configuracion de icono del panel, icono del procesador automatico o personalizado, idioma y tamano del menu flotante.
+- Apariencia automatica segun el tema de Plasma, con opcion de colores personalizados.
 - Scripts externos Bash para consultar y modificar `/sys`.
 - Script externo Bash para detectar fabricante de CPU desde `/proc/cpuinfo`.
 - Cambios con `pkexec` y politica PolicyKit dedicada.
@@ -72,6 +74,7 @@ switch-turbo-boost-plasmoid/
 │   ├── 03.png
 │   └── 04.png
 ├── scripts/
+│   ├── get-cpu-info.sh
 │   ├── get-cpu-vendor.sh
 │   ├── get-turbo-status.sh
 │   ├── set-turbo-on.sh
@@ -209,6 +212,11 @@ Luego reinicie Plasma si el widget seguia cargado.
 Copyright 2026 Punchisoft.
 
 Distribuido bajo GPL-3.0-or-later. Consulte `LICENSES/GPL-3.0-or-later.txt`.
+
+Los iconos de procesador en `package/contents/images/` estan basados en Papirus Icon Theme de Papirus Development Team:
+
+- Fuente: https://github.com/PapirusDevelopmentTeam/papirus-icon-theme
+- Licencia: GPL-3.0-only, consulte `LICENSES/GPL-3.0-only.txt` y los archivos `.license` junto a cada SVG.
 
 ## Advertencia
 
