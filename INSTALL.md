@@ -82,11 +82,35 @@ El instalador copia:
 - Los scripts del sistema a `/usr/local/libexec/switch-turbo-boost-plasmoid/`, incluidos `get-cpu-info.sh` y `get-cpu-vendor.sh`
 - La politica PolicyKit a `/usr/share/polkit-1/actions/org.punchisoft.switchturbo.policy`
 
-### 3. Reiniciar Plasma si el widget no aparece
+### 3. Recargar Plasma Shell
+
+Despues de instalar o actualizar el plasmoid puede ser necesario recargar Plasma Shell para que KDE detecte cambios en el widget.
+
+#### Opcion 1 - Cerrar sesion e iniciar sesion nuevamente
+
+Cerrar sesion y volver a iniciar sesion es la forma mas segura de recargar completamente Plasma sin depender de comandos de terminal.
+
+Esta opcion es recomendada para usuarios que no quieran usar terminal.
+
+#### Opcion 2 - Usar kquitapp6 + kstart
+
+Esta opcion fue probada en Fedora KDE Plasma 6. Reinicia Plasma Shell sin cerrar toda la sesion:
 
 ```bash
-kquitapp6 plasmashell && kstart6 plasmashell
+kquitapp6 plasmashell
+kstart plasmashell
 ```
+
+#### Opcion 3 - Usar nohup con plasmashell --replace
+
+Use esta alternativa si `kstart` no esta disponible. `nohup` evita que Plasma quede ligado a la terminal:
+
+```bash
+kquitapp6 plasmashell
+nohup plasmashell --replace >/tmp/plasmashell.log 2>&1 &
+```
+
+No todos los sistemas KDE incluyen los mismos comandos. Si `kstart` no existe, use la alternativa con `nohup` o cierre sesion.
 
 ### 4. Agregar el plasmoide al panel
 
@@ -144,8 +168,4 @@ chmod +x uninstall.sh
 ./uninstall.sh
 ```
 
-Si el widget seguia cargado en el panel, reinicie Plasma:
-
-```bash
-kquitapp6 plasmashell && kstart6 plasmashell
-```
+Si el widget seguia cargado en el panel, consulte la seccion **Recargar Plasma Shell**.

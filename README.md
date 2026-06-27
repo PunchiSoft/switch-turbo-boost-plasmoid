@@ -52,6 +52,8 @@ Este proyecto es complementario a Switch Turbo Monitor. No reemplaza ni reescrib
 
 Las capturas del proyecto estan en `Images/`. No forman parte del paquete instalable del plasmoide; se incluyen para documentacion del repositorio.
 
+El documento breve para publicar la actualizacion 0.2.0 esta en `docs/release-post-0.2.0.pdf`.
+
 ## Estructura
 
 ```text
@@ -73,6 +75,9 @@ switch-turbo-boost-plasmoid/
 │   ├── 02.png
 │   ├── 03.png
 │   └── 04.png
+├── docs/
+│   ├── release-post-0.2.0.html
+│   └── release-post-0.2.0.pdf
 ├── scripts/
 │   ├── get-cpu-info.sh
 │   ├── get-cpu-vendor.sh
@@ -166,11 +171,37 @@ y la politica PolicyKit en:
 /usr/share/polkit-1/actions/org.punchisoft.switchturbo.policy
 ```
 
-Despues agregue **Switch Turbo Boost** al panel desde el selector de widgets de Plasma. Si no aparece inmediatamente, reinicie Plasma:
+Despues agregue **Switch Turbo Boost** al panel desde el selector de widgets de Plasma. Si no aparece inmediatamente, consulte la seccion **Recargar Plasma Shell**.
+
+## Recargar Plasma Shell
+
+Despues de instalar o actualizar el plasmoid puede ser necesario recargar Plasma Shell para que KDE detecte cambios en el widget.
+
+### Opcion 1 - Cerrar sesion e iniciar sesion nuevamente
+
+Cerrar sesion y volver a iniciar sesion es la forma mas segura de recargar completamente Plasma sin depender de comandos de terminal.
+
+Esta opcion es recomendada para usuarios que no quieran usar terminal.
+
+### Opcion 2 - Usar kquitapp6 + kstart
+
+Esta opcion fue probada en Fedora KDE Plasma 6. Reinicia Plasma Shell sin cerrar toda la sesion:
 
 ```bash
-kquitapp6 plasmashell && kstart6 plasmashell
+kquitapp6 plasmashell
+kstart plasmashell
 ```
+
+### Opcion 3 - Usar nohup con plasmashell --replace
+
+Use esta alternativa si `kstart` no esta disponible. `nohup` evita que Plasma quede ligado a la terminal:
+
+```bash
+kquitapp6 plasmashell
+nohup plasmashell --replace >/tmp/plasmashell.log 2>&1 &
+```
+
+No todos los sistemas KDE incluyen los mismos comandos. Si `kstart` no existe, use la alternativa con `nohup` o cierre sesion.
 
 ## Pruebas manuales
 
