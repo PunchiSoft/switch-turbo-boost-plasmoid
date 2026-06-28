@@ -93,7 +93,9 @@ switch-turbo-boost-plasmoid/
 ├── install-backend.sh
 ├── uninstall.sh
 ├── INSTALL.md
+├── INSTALL.en.md
 ├── README.md
+├── README.en.md
 └── install.sh
 ```
 
@@ -151,6 +153,17 @@ Desde esta carpeta:
 ```bash
 chmod +x install.sh install-plasmoid.sh install-backend.sh scripts/*.sh
 ./install.sh
+```
+
+Durante la instalacion del plasmoide se puede elegir el idioma de la interfaz. Tambien puede indicarse explicitamente:
+
+```bash
+./install.sh --language es
+./install.sh --language en
+./install.sh --language auto
+./install-plasmoid.sh --language es
+./install-plasmoid.sh --language en
+./install-plasmoid.sh --language auto
 ```
 
 El instalador copia el paquete QML en:

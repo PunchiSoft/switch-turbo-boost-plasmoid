@@ -74,6 +74,17 @@ chmod +x install.sh install-plasmoid.sh install-backend.sh scripts/*.sh
 ./install.sh
 ```
 
+Durante la instalacion del plasmoide se puede elegir el idioma de la interfaz. Tambien puede indicarse explicitamente:
+
+```bash
+./install.sh --language es
+./install.sh --language en
+./install.sh --language auto
+./install-plasmoid.sh --language es
+./install-plasmoid.sh --language en
+./install-plasmoid.sh --language auto
+```
+
 Durante este paso se solicitara autenticacion de administrador mediante PolicyKit.
 
 El instalador copia:
