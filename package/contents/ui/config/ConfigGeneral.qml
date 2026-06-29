@@ -27,7 +27,40 @@ Kirigami.FormLayout {
     property alias cfg_customInactiveColor: inactiveColorField.text
 
     readonly property bool customThemeSelected: cfg_themeMode === "custom"
+    readonly property string effectiveUiLanguage: {
+        if (cfg_uiLanguage === "es" || cfg_uiLanguage === "en" || cfg_uiLanguage === "pt") {
+            return cfg_uiLanguage;
+        }
+
+        const localeName = Qt.locale().name.toLowerCase();
+        if (localeName.startsWith("en")) {
+            return "en";
+        }
+        if (localeName.startsWith("pt")) {
+            return "pt";
+        }
+        return "es";
+    }
     property var colorDialogTarget: null
+
+    function t(es, en, pt) {
+        if (effectiveUiLanguage === "es") {
+            return es;
+        }
+        if (effectiveUiLanguage === "en") {
+            return en;
+        }
+        if (effectiveUiLanguage === "pt") {
+            return pt || en || es;
+        }
+        return es;
+    }
+
+    function refreshLocalizedModels() {
+        languageModel.setProperty(0, "label", t("Automatico", "Automatic", "Automatico"));
+        themeModeModel.setProperty(0, "label", t("Automatico", "Automatic", "Automatico"));
+        themeModeModel.setProperty(1, "label", t("Personalizado", "Custom", "Personalizado"));
+    }
 
     // ###############
     // Icon selection
@@ -82,7 +115,7 @@ Kirigami.FormLayout {
     function processorIconLabel(iconName) {
         const normalized = iconName && iconName.length > 0 ? iconName : "auto";
         if (normalized === "auto") {
-            return i18n("Automatico");
+            return t("Automatico", "Automatic", "Automatico");
         }
         if (normalized === "amd") {
             return "AMD";
@@ -94,7 +127,7 @@ Kirigami.FormLayout {
             return "CPU";
         }
         if (normalized === "project-chip") {
-            return i18n("Chip turbo");
+            return t("Chip turbo", "Turbo chip", "Chip turbo");
         }
         return normalized;
     }
@@ -121,7 +154,11 @@ Kirigami.FormLayout {
         colorDialog.open();
     }
 
-    Component.onCompleted: cfg_iconStyle = normalizeIconName(cfg_iconStyle)
+    Component.onCompleted: {
+        cfg_iconStyle = normalizeIconName(cfg_iconStyle);
+        refreshLocalizedModels();
+    }
+    onEffectiveUiLanguageChanged: refreshLocalizedModels()
 
     KIconThemes.IconDialog {
         id: iconDialog
@@ -138,7 +175,7 @@ Kirigami.FormLayout {
     Dialogs.ColorDialog {
         id: colorDialog
 
-        title: i18n("Seleccionar color")
+        title: page.t("Seleccionar color", "Select color", "Selecionar cor")
         onAccepted: {
             if (page.colorDialogTarget) {
                 page.colorDialogTarget.text = page.colorToHex(selectedColor);
@@ -147,7 +184,7 @@ Kirigami.FormLayout {
     }
 
     RowLayout {
-        Kirigami.FormData.label: i18n("Icono del panel:")
+        Kirigami.FormData.label: page.t("Icono del panel:", "Panel icon:", "Icone do painel:")
         spacing: Kirigami.Units.smallSpacing
 
         QQC2.Button {
@@ -169,7 +206,7 @@ Kirigami.FormLayout {
 
         QQC2.Label {
             Layout.fillWidth: true
-            text: page.cfg_iconStyle === "project-chip" ? i18n("Chip del proyecto") : page.cfg_iconStyle
+            text: page.cfg_iconStyle === "project-chip" ? page.t("Chip del proyecto", "Project chip", "Chip do projeto") : page.cfg_iconStyle
             elide: Text.ElideRight
             opacity: 0.75
         }
@@ -177,14 +214,14 @@ Kirigami.FormLayout {
 
     QQC2.Label {
         Kirigami.FormData.label: ""
-        text: i18n("Elige el icono que se muestra en la barra o panel de Plasma.")
+        text: page.t("Elige el icono que se muestra en la barra o panel de Plasma.", "Choose the icon shown in the Plasma bar or panel.", "Escolha o icone exibido na barra ou no painel do Plasma.")
         wrapMode: Text.WordWrap
         opacity: 0.75
     }
 
     QQC2.Button {
         Kirigami.FormData.label: ""
-        text: i18n("Usar chip del proyecto")
+        text: page.t("Usar chip del proyecto", "Use project chip", "Usar chip do projeto")
         icon.name: "edit-reset"
         onClicked: page.cfg_iconStyle = "project-chip"
     }
@@ -197,7 +234,7 @@ Kirigami.FormLayout {
     // Processor icon selection
     // ########################
     RowLayout {
-        Kirigami.FormData.label: i18n("Icono del procesador:")
+        Kirigami.FormData.label: page.t("Icono del procesador:", "Processor icon:", "Icone do processador:")
         spacing: Kirigami.Units.smallSpacing
 
         QQC2.Button {
@@ -230,7 +267,7 @@ Kirigami.FormLayout {
         spacing: Kirigami.Units.smallSpacing
 
         QQC2.Button {
-            text: i18n("Auto")
+            text: page.t("Auto", "Auto", "Auto")
             onClicked: page.cfg_processorIconStyle = "auto"
         }
 
@@ -250,14 +287,14 @@ Kirigami.FormLayout {
         }
 
         QQC2.Button {
-            text: i18n("Chip")
+            text: page.t("Chip", "Chip", "Chip")
             onClicked: page.cfg_processorIconStyle = "project-chip"
         }
     }
 
     QQC2.Label {
         Kirigami.FormData.label: ""
-        text: i18n("Elige el icono que aparece dentro del menu flotante del plasmoide.")
+        text: page.t("Elige el icono que aparece dentro del menu flotante del plasmoide.", "Choose the icon shown inside the plasmoid popup.", "Escolha o icone exibido dentro do menu flutuante do plasmoide.")
         wrapMode: Text.WordWrap
         opacity: 0.75
     }
@@ -273,7 +310,7 @@ Kirigami.FormLayout {
         id: languageModel
 
         ListElement {
-            label: "Automático"
+            label: "Automatico"
             value: "auto"
         }
         ListElement {
@@ -291,7 +328,7 @@ Kirigami.FormLayout {
     }
 
     QQC2.ComboBox {
-        Kirigami.FormData.label: i18n("Idioma:")
+        Kirigami.FormData.label: page.t("Idioma:", "Language:", "Idioma:")
         textRole: "label"
         valueRole: "value"
         model: languageModel
@@ -320,7 +357,7 @@ Kirigami.FormLayout {
         id: themeModeModel
 
         ListElement {
-            label: "Automático"
+            label: "Automatico"
             value: "auto"
         }
         ListElement {
@@ -332,7 +369,7 @@ Kirigami.FormLayout {
     QQC2.ComboBox {
         id: themeModeCombo
 
-        Kirigami.FormData.label: i18n("Apariencia:")
+        Kirigami.FormData.label: page.t("Apariencia:", "Appearance:", "Aparencia:")
         textRole: "label"
         valueRole: "value"
         model: themeModeModel
@@ -351,7 +388,7 @@ Kirigami.FormLayout {
     }
 
     RowLayout {
-        Kirigami.FormData.label: i18n("Fondo:")
+        Kirigami.FormData.label: page.t("Fondo:", "Background:", "Fundo:")
         enabled: page.customThemeSelected
         spacing: Kirigami.Units.smallSpacing
 
@@ -375,20 +412,20 @@ Kirigami.FormLayout {
 
             Layout.fillWidth: true
             text: "auto"
-            placeholderText: i18n("auto o #242a32")
+            placeholderText: page.t("auto o #242a32", "auto or #242a32", "auto ou #242a32")
             validator: RegularExpressionValidator {
                 regularExpression: /^(auto|#[0-9a-fA-F]{6})$/
             }
         }
 
         QQC2.Button {
-            text: i18n("Auto")
+            text: page.t("Auto", "Auto", "Auto")
             onClicked: backgroundColorField.text = "auto"
         }
     }
 
     RowLayout {
-        Kirigami.FormData.label: i18n("Texto principal:")
+        Kirigami.FormData.label: page.t("Texto principal:", "Primary text:", "Texto principal:")
         enabled: page.customThemeSelected
         spacing: Kirigami.Units.smallSpacing
 
@@ -412,20 +449,20 @@ Kirigami.FormLayout {
 
             Layout.fillWidth: true
             text: "auto"
-            placeholderText: i18n("auto o #f3f6f8")
+            placeholderText: page.t("auto o #f3f6f8", "auto or #f3f6f8", "auto ou #f3f6f8")
             validator: RegularExpressionValidator {
                 regularExpression: /^(auto|#[0-9a-fA-F]{6})$/
             }
         }
 
         QQC2.Button {
-            text: i18n("Auto")
+            text: page.t("Auto", "Auto", "Auto")
             onClicked: textColorField.text = "auto"
         }
     }
 
     RowLayout {
-        Kirigami.FormData.label: i18n("Texto secundario:")
+        Kirigami.FormData.label: page.t("Texto secundario:", "Secondary text:", "Texto secundario:")
         enabled: page.customThemeSelected
         spacing: Kirigami.Units.smallSpacing
 
@@ -449,20 +486,20 @@ Kirigami.FormLayout {
 
             Layout.fillWidth: true
             text: "auto"
-            placeholderText: i18n("auto o #7f8994")
+            placeholderText: page.t("auto o #7f8994", "auto or #7f8994", "auto ou #7f8994")
             validator: RegularExpressionValidator {
                 regularExpression: /^(auto|#[0-9a-fA-F]{6})$/
             }
         }
 
         QQC2.Button {
-            text: i18n("Auto")
+            text: page.t("Auto", "Auto", "Auto")
             onClicked: mutedTextColorField.text = "auto"
         }
     }
 
     RowLayout {
-        Kirigami.FormData.label: i18n("Color ON:")
+        Kirigami.FormData.label: page.t("Color ON:", "ON color:", "Cor ON:")
         enabled: page.customThemeSelected
         spacing: Kirigami.Units.smallSpacing
 
@@ -486,20 +523,20 @@ Kirigami.FormLayout {
 
             Layout.fillWidth: true
             text: "auto"
-            placeholderText: i18n("auto o #2fbf71")
+            placeholderText: page.t("auto o #2fbf71", "auto or #2fbf71", "auto ou #2fbf71")
             validator: RegularExpressionValidator {
                 regularExpression: /^(auto|#[0-9a-fA-F]{6})$/
             }
         }
 
         QQC2.Button {
-            text: i18n("Auto")
+            text: page.t("Auto", "Auto", "Auto")
             onClicked: accentColorField.text = "auto"
         }
     }
 
     RowLayout {
-        Kirigami.FormData.label: i18n("Color OFF:")
+        Kirigami.FormData.label: page.t("Color OFF:", "OFF color:", "Cor OFF:")
         enabled: page.customThemeSelected
         spacing: Kirigami.Units.smallSpacing
 
@@ -523,21 +560,21 @@ Kirigami.FormLayout {
 
             Layout.fillWidth: true
             text: "auto"
-            placeholderText: i18n("auto o #7b828c")
+            placeholderText: page.t("auto o #7b828c", "auto or #7b828c", "auto ou #7b828c")
             validator: RegularExpressionValidator {
                 regularExpression: /^(auto|#[0-9a-fA-F]{6})$/
             }
         }
 
         QQC2.Button {
-            text: i18n("Auto")
+            text: page.t("Auto", "Auto", "Auto")
             onClicked: inactiveColorField.text = "auto"
         }
     }
 
     QQC2.Button {
         Kirigami.FormData.label: ""
-        text: i18n("Restablecer apariencia")
+        text: page.t("Restablecer apariencia", "Reset appearance", "Redefinir aparencia")
         icon.name: "edit-reset"
         onClicked: {
             page.cfg_themeMode = "auto";
@@ -558,12 +595,12 @@ Kirigami.FormLayout {
     // Popup dimensions
     // ################
     RowLayout {
-        Kirigami.FormData.label: i18n("Tamano del menu:")
+        Kirigami.FormData.label: page.t("Tamano del menu:", "Menu size:", "Tamanho do menu:")
         spacing: Kirigami.Units.smallSpacing
         Layout.alignment: Qt.AlignLeft
 
         QQC2.Label {
-            text: i18n("Ancho")
+            text: page.t("Ancho", "Width", "Largura")
             opacity: 0.75
         }
 
@@ -578,12 +615,12 @@ Kirigami.FormLayout {
         }
 
         QQC2.Label {
-            text: i18n("px")
+            text: "px"
             opacity: 0.75
         }
 
         QQC2.Label {
-            text: i18n("Alto")
+            text: page.t("Alto", "Height", "Altura")
             opacity: 0.75
         }
 
@@ -598,12 +635,12 @@ Kirigami.FormLayout {
         }
 
         QQC2.Label {
-            text: i18n("px")
+            text: "px"
             opacity: 0.75
         }
 
         QQC2.Button {
-            text: i18n("Restablecer tamano")
+            text: page.t("Restablecer tamano", "Reset size", "Redefinir tamanho")
             icon.name: "edit-reset"
             onClicked: {
                 popupWidthSpin.value = 252;

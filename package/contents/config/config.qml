@@ -7,7 +7,7 @@ import org.kde.plasma.configuration 2.0
 
 ConfigModel {
     ConfigCategory {
-        name: i18n("Apariencia")
+        name: "UI"
         icon: "preferences-desktop-icons"
         source: "config/ConfigGeneral.qml"
     }

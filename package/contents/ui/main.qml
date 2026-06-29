@@ -40,11 +40,11 @@ PlasmoidItem {
     property bool turboOn: false
     property bool available: false
     property bool actionRunning: false
+    property bool refreshRunning: false
     property string statusText: root.t("Comprobando...", "Checking...", "Verificando...")
     property string detailText: ""
     property string cpuVendor: "unknown"
     property string cpuModelName: ""
-    property string lastReadText: root.t("Pendiente", "Pending", "Pendente")
 
     // ############
     // Visual tokens
@@ -107,6 +107,7 @@ PlasmoidItem {
     // ##############
     readonly property string iconStyle: Plasmoid.configuration.iconStyle || "cpu"
     readonly property string processorIconStyle: Plasmoid.configuration.processorIconStyle || "auto"
+    readonly property url refreshIcon: Qt.resolvedUrl("../images/kfoldersync.svg")
     readonly property var panelIcon: root.iconSource(iconStyle)
     readonly property var processorIcon: root.processorIconSource(processorIconStyle)
 
@@ -220,6 +221,17 @@ PlasmoidItem {
         executable.connectSource(cpuInfoCommand);
     }
 
+    function manualRefresh() {
+        if (actionRunning || refreshRunning) {
+            return;
+        }
+
+        refreshRunning = true;
+        statusText = root.t("Comprobando...", "Checking...", "Verificando...");
+        root.refreshStatus();
+        root.refreshVendor();
+    }
+
     function valueFromOutput(stdout, key) {
         const lines = stdout.split("\n");
         const prefix = key + "=";
@@ -245,18 +257,15 @@ PlasmoidItem {
             available = true;
             statusText = root.boostTechnologyText + " " + root.t("ON", "ON");
             detailText = "";
-            lastReadText = root.t("ahora", "now", "agora");
         } else if (normalized === "off") {
             turboOn = false;
             available = true;
             statusText = root.boostTechnologyText + " " + root.t("OFF", "OFF");
             detailText = "";
-            lastReadText = root.t("ahora", "now", "agora");
         } else {
             available = false;
             statusText = root.t("Estado desconocido", "Unknown status", "Estado desconhecido");
             detailText = stdout || stderr;
-            lastReadText = root.t("ahora", "now", "agora");
         }
     }
 
@@ -286,6 +295,7 @@ PlasmoidItem {
             // The executable datasource multiplexes status, vendor detection and toggle commands.
             if (sourceName === root.statusCommand) {
                 root.setStatusFromOutput(stdout, stderr, code);
+                root.refreshRunning = false;
                 return;
             }
 
@@ -516,47 +526,56 @@ PlasmoidItem {
                     Layout.fillWidth: true
                     spacing: Kirigami.Units.smallSpacing
 
-                    Rectangle {
-                        Layout.preferredWidth: Kirigami.Units.gridUnit * 1.8
-                        Layout.preferredHeight: Kirigami.Units.gridUnit * 1.45
-                        radius: Kirigami.Units.smallSpacing
-                        color: refreshMouse.containsMouse ? root.withAlpha(root.primaryTextColor, 0.12) : root.withAlpha(root.primaryTextColor, 0.06)
-                        border.color: root.withAlpha(root.primaryTextColor, 0.10)
-                        border.width: 1
-                        opacity: root.actionRunning ? 0.55 : 1
+                    Item {
+                        Layout.fillWidth: true
+                    }
 
-                        Kirigami.Icon {
-                            anchors.centerIn: parent
-                            width: Kirigami.Units.iconSizes.small
-                            height: width
-                            source: "view-refresh-symbolic"
-                            color: root.subtleTextColor
+                    Rectangle {
+                        Layout.preferredWidth: Kirigami.Units.gridUnit * 5.2
+                        Layout.preferredHeight: Kirigami.Units.gridUnit * 1.7
+                        radius: Kirigami.Units.smallSpacing
+                        color: root.refreshRunning
+                            ? root.withAlpha(root.accentColor, 0.18)
+                            : refreshMouse.pressed
+                                ? root.withAlpha(root.primaryTextColor, 0.18)
+                                : refreshMouse.containsMouse
+                                    ? root.withAlpha(root.primaryTextColor, 0.12)
+                                    : root.withAlpha(root.primaryTextColor, 0.06)
+                        border.color: root.withAlpha(root.refreshRunning ? root.accentColor : root.primaryTextColor, root.refreshRunning ? 0.42 : 0.10)
+                        border.width: 1
+                        opacity: root.actionRunning || root.refreshRunning ? 0.72 : 1
+
+                        RowLayout {
+                            anchors.fill: parent
+                            anchors.leftMargin: Kirigami.Units.smallSpacing
+                            anchors.rightMargin: Kirigami.Units.smallSpacing
+                            spacing: Kirigami.Units.smallSpacing
+
+                            Kirigami.Icon {
+                                Layout.preferredWidth: Kirigami.Units.iconSizes.smallMedium
+                                Layout.preferredHeight: Layout.preferredWidth
+                                source: root.refreshIcon
+                            }
+
+                            PlasmaComponents3.Label {
+                                Layout.fillWidth: true
+                                text: root.refreshRunning
+                                    ? root.t("Actualizando...", "Refreshing...", "Atualizando...")
+                                    : root.t("Refrescar", "Refresh", "Atualizar")
+                                color: root.secondaryTextColor
+                                elide: Text.ElideRight
+                            }
                         }
 
                         MouseArea {
                             id: refreshMouse
 
                             anchors.fill: parent
-                            enabled: !root.actionRunning
+                            enabled: !root.actionRunning && !root.refreshRunning
                             hoverEnabled: true
                             cursorShape: Qt.PointingHandCursor
-                            onClicked: {
-                                root.refreshStatus();
-                                root.refreshVendor();
-                            }
+                            onClicked: root.manualRefresh()
                         }
-                    }
-
-                    PlasmaComponents3.Label {
-                        Layout.fillWidth: true
-                        text: root.t("Comprobar estado", "Check status", "Verificar estado")
-                        color: root.secondaryTextColor
-                        elide: Text.ElideRight
-                    }
-
-                    PlasmaComponents3.Label {
-                        text: root.t("Ultima lectura: ", "Last read: ", "Ultima leitura: ") + root.lastReadText
-                        color: root.secondaryTextColor
                     }
                 }
 

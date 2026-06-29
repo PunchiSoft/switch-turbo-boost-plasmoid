@@ -20,7 +20,7 @@
         "Name": "Switch Turbo Boost",
         "Name[es]": "Switch Turbo Boost",
         "Name[pt]": "Switch Turbo Boost",
-        "Version": "0.2.0",
+        "Version": "0.3.0",
         "Website": "https://github.com/PunchiSoft/switch-turbo-boost-plasmoid"
     },
     "X-Plasma-API-Minimum-Version": "6.0",
