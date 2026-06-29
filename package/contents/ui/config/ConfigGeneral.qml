@@ -284,6 +284,10 @@ Kirigami.FormLayout {
             label: "English"
             value: "en"
         }
+        ListElement {
+            label: "Português"
+            value: "pt"
+        }
     }
 
     QQC2.ComboBox {
@@ -554,12 +558,19 @@ Kirigami.FormLayout {
     // Popup dimensions
     // ################
     RowLayout {
-        Kirigami.FormData.label: i18n("Ancho del menu:")
+        Kirigami.FormData.label: i18n("Tamano del menu:")
         spacing: Kirigami.Units.smallSpacing
+        Layout.alignment: Qt.AlignLeft
+
+        QQC2.Label {
+            text: i18n("Ancho")
+            opacity: 0.75
+        }
 
         QQC2.SpinBox {
             id: popupWidthSpin
 
+            Layout.preferredWidth: Kirigami.Units.gridUnit * 5
             from: 216
             to: 640
             stepSize: 10
@@ -570,15 +581,16 @@ Kirigami.FormLayout {
             text: i18n("px")
             opacity: 0.75
         }
-    }
 
-    RowLayout {
-        Kirigami.FormData.label: i18n("Alto del menu:")
-        spacing: Kirigami.Units.smallSpacing
+        QQC2.Label {
+            text: i18n("Alto")
+            opacity: 0.75
+        }
 
         QQC2.SpinBox {
             id: popupHeightSpin
 
+            Layout.preferredWidth: Kirigami.Units.gridUnit * 5
             from: 180
             to: 720
             stepSize: 10
@@ -589,15 +601,14 @@ Kirigami.FormLayout {
             text: i18n("px")
             opacity: 0.75
         }
-    }
 
-    QQC2.Button {
-        Kirigami.FormData.label: ""
-        text: i18n("Restablecer tamano")
-        icon.name: "edit-reset"
-        onClicked: {
-            popupWidthSpin.value = 252;
-            popupHeightSpin.value = 466;
+        QQC2.Button {
+            text: i18n("Restablecer tamano")
+            icon.name: "edit-reset"
+            onClicked: {
+                popupWidthSpin.value = 252;
+                popupHeightSpin.value = 466;
+            }
         }
     }
 }

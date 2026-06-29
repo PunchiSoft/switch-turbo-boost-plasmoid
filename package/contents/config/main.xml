@@ -20,7 +20,7 @@
     </entry>
     <entry name="uiLanguage" type="String">
       <default>es</default>
-      <label>Interface language</label>
+      <label>Interface language: auto, es, en, pt</label>
     </entry>
     <entry name="preferredPopupWidth" type="Int">
       <default>252</default>

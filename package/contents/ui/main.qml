@@ -40,11 +40,11 @@ PlasmoidItem {
     property bool turboOn: false
     property bool available: false
     property bool actionRunning: false
-    property string statusText: root.t("Comprobando...", "Checking...")
+    property string statusText: root.t("Comprobando...", "Checking...", "Verificando...")
     property string detailText: ""
     property string cpuVendor: "unknown"
     property string cpuModelName: ""
-    property string lastReadText: root.t("Pendiente", "Pending")
+    property string lastReadText: root.t("Pendiente", "Pending", "Pendente")
 
     // ############
     // Visual tokens
@@ -64,7 +64,7 @@ PlasmoidItem {
     readonly property int popupConfiguredWidth: Math.max(Kirigami.Units.gridUnit * 12, Number(Plasmoid.configuration.preferredPopupWidth || 252))
     readonly property int popupConfiguredHeight: Math.max(Kirigami.Units.gridUnit * 10, Number(Plasmoid.configuration.preferredPopupHeight || 466))
     readonly property string effectiveUiLanguage: {
-        if (uiLanguage === "es" || uiLanguage === "en") {
+        if (uiLanguage === "es" || uiLanguage === "en" || uiLanguage === "pt") {
             return uiLanguage;
         }
 
@@ -72,21 +72,24 @@ PlasmoidItem {
         if (localeName.startsWith("en")) {
             return "en";
         }
+        if (localeName.startsWith("pt")) {
+            return "pt";
+        }
         return "es";
     }
     readonly property string stateLabel: available ? (turboOn ? root.t("ON", "ON") : root.t("OFF", "OFF")) : root.t("N/D", "N/A")
     readonly property string stateDescription: available
-        ? (turboOn ? root.t("Permite mayor rendimiento cuando el sistema lo requiere.", "Allows higher performance when the system needs it.")
-                   : root.t("Prioriza temperatura, ruido y consumo energetico.", "Prioritizes temperature, noise, and power consumption."))
-        : root.t("No se encontro un control de boost compatible en este equipo.", "No compatible boost control was found on this computer.")
+        ? (turboOn ? root.t("Permite mayor rendimiento cuando el sistema lo requiere.", "Allows higher performance when the system needs it.", "Permite maior desempenho quando o sistema precisa.")
+                   : root.t("Prioriza temperatura, ruido y consumo energetico.", "Prioritizes temperature, noise, and power consumption.", "Prioriza temperatura, ruido e consumo de energia."))
+        : root.t("No se encontro un control de boost compatible en este equipo.", "No compatible boost control was found on this computer.", "Nenhum controle de boost compativel foi encontrado neste computador.")
     readonly property string vendorText: {
         if (cpuVendor === "amd") {
-            return root.t("AMD detectado", "AMD detected");
+            return root.t("AMD detectado", "AMD detected", "AMD detectado");
         }
         if (cpuVendor === "intel") {
-            return root.t("Intel detectado", "Intel detected");
+            return root.t("Intel detectado", "Intel detected", "Intel detectado");
         }
-        return root.t("CPU detectada", "CPU detected");
+        return root.t("CPU detectada", "CPU detected", "CPU detectada");
     }
     readonly property string boostTechnologyText: {
         if (cpuVendor === "amd") {
@@ -97,7 +100,7 @@ PlasmoidItem {
         }
         return root.t("CPU Boost", "CPU Boost");
     }
-    readonly property string boostTechnologyLabel: root.t("Tecnologia: ", "Technology: ") + root.boostTechnologyText
+    readonly property string boostTechnologyLabel: root.t("Tecnologia: ", "Technology: ", "Tecnologia: ") + root.boostTechnologyText
 
     // ##############
     // Icon selection
@@ -163,12 +166,15 @@ PlasmoidItem {
     // ################
     // Text helper
     // ################
-    function t(es, en) {
+    function t(es, en, pt) {
         if (effectiveUiLanguage === "es") {
             return es;
         }
         if (effectiveUiLanguage === "en") {
             return en;
+        }
+        if (effectiveUiLanguage === "pt") {
+            return pt || en || es;
         }
         return es;
     }
@@ -228,7 +234,7 @@ PlasmoidItem {
     function setStatusFromOutput(stdout, stderr, code) {
         if (code !== 0) {
             available = false;
-            statusText = root.boostTechnologyText + root.t(" no disponible", " unavailable");
+            statusText = root.boostTechnologyText + root.t(" no disponible", " unavailable", " indisponivel");
             detailText = stderr || stdout;
             return;
         }
@@ -239,18 +245,18 @@ PlasmoidItem {
             available = true;
             statusText = root.boostTechnologyText + " " + root.t("ON", "ON");
             detailText = "";
-            lastReadText = root.t("ahora", "now");
+            lastReadText = root.t("ahora", "now", "agora");
         } else if (normalized === "off") {
             turboOn = false;
             available = true;
             statusText = root.boostTechnologyText + " " + root.t("OFF", "OFF");
             detailText = "";
-            lastReadText = root.t("ahora", "now");
+            lastReadText = root.t("ahora", "now", "agora");
         } else {
             available = false;
-            statusText = root.t("Estado desconocido", "Unknown status");
+            statusText = root.t("Estado desconocido", "Unknown status", "Estado desconhecido");
             detailText = stdout || stderr;
-            lastReadText = root.t("ahora", "now");
+            lastReadText = root.t("ahora", "now", "agora");
         }
     }
 
@@ -260,7 +266,7 @@ PlasmoidItem {
         }
 
         actionRunning = true;
-        statusText = turboOn ? root.t("Apagando...", "Turning off...") : root.t("Encendiendo...", "Turning on...");
+        statusText = turboOn ? root.t("Apagando...", "Turning off...", "Desligando...") : root.t("Encendiendo...", "Turning on...", "Ligando...");
         executable.connectSource(turboOn ? offCommand : onCommand);
     }
 
@@ -308,7 +314,7 @@ PlasmoidItem {
 
             root.actionRunning = false;
             if (code !== 0) {
-                root.statusText = root.t("Accion cancelada o sin permisos", "Action canceled or permission denied");
+                root.statusText = root.t("Accion cancelada o sin permisos", "Action canceled or permission denied", "Acao cancelada ou sem permissoes");
                 root.detailText = stderr || stdout;
             }
             root.refreshStatus();
@@ -543,13 +549,13 @@ PlasmoidItem {
 
                     PlasmaComponents3.Label {
                         Layout.fillWidth: true
-                        text: root.t("Comprobar estado", "Check status")
+                        text: root.t("Comprobar estado", "Check status", "Verificar estado")
                         color: root.secondaryTextColor
                         elide: Text.ElideRight
                     }
 
                     PlasmaComponents3.Label {
-                        text: root.t("Ultima lectura: ", "Last read: ") + root.lastReadText
+                        text: root.t("Ultima lectura: ", "Last read: ", "Ultima leitura: ") + root.lastReadText
                         color: root.secondaryTextColor
                     }
                 }

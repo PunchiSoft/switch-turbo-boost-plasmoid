@@ -3,180 +3,209 @@ SPDX-FileCopyrightText: 2026 Punchisoft
 SPDX-License-Identifier: GPL-3.0-or-later
 -->
 
-# Instalacion de Switch Turbo Boost Plasmoid
+[English](INSTALL.md) | [Español](INSTALL.es.md) | [Português](INSTALL.pt.md)
 
-Guia rapida para instalar el plasmoide en el entorno de escritorio KDE Plasma 6.
+# Installing Switch Turbo Boost Plasmoid
 
-## 1. Descargar el proyecto
+Quick guide for installing the plasmoid on the KDE Plasma 6 desktop.
 
-Desde Git:
+## 1. Download the Project
+
+From Git:
 
 ```bash
 git clone https://github.com/PunchiSoft/switch-turbo-boost-plasmoid.git
 cd switch-turbo-boost-plasmoid
 ```
 
-Si ya tiene el codigo descargado localmente:
+If you already have the code locally:
 
 ```bash
 cd switch-turbo-boost-plasmoid
 ```
 
-## Que hace cada script
+## What Each Script Does
 
-| Script | Que instala o elimina | Uso recomendado |
+| Script | What it installs or removes | Recommended use |
 | --- | --- | --- |
-| `install-plasmoid.sh` | Copia solo la interfaz del plasmoide desde `package/` a `~/.local/share/plasma/plasmoids/org.punchisoft.switchturbo/`. | Use este script despues de cambiar QML, iconos, idioma, textos, configuracion o `metadata.json`. |
-| `install-backend.sh` | Copia los helpers de `scripts/` a `/usr/local/libexec/switch-turbo-boost-plasmoid/` e instala la politica PolicyKit en `/usr/share/polkit-1/actions/org.punchisoft.switchturbo.policy`. | Use este script despues de cambiar los helpers Bash o la politica PolicyKit. Solicita permisos con `pkexec`. |
-| `install.sh` | Ejecuta primero `install-plasmoid.sh` y luego `install-backend.sh`. | Use este script para una instalacion completa o cuando quiera actualizar todo de una vez. |
-| `uninstall.sh` | Elimina el plasmoide local, los helpers del sistema y la politica PolicyKit. | Use este script para desinstalar completamente el proyecto. |
+| `install.sh` | Main installer. It can install everything, only the plasmoid, or only the backend. | Recommended for end users. |
+| `uninstall.sh` | Removes the local plasmoid, system helpers, and PolicyKit policy. | Use it to completely uninstall the project. |
+| `build-plasmoid.sh` | Generates `switch-turbo-boost.plasmoid`. | Use it only for visual installation from a local file. |
 
-## Instalacion visual desde KDE Plasma
+## Visual Installation From KDE Plasma
 
-Esta opcion instala solo la interfaz del plasmoid desde un archivo local.
+This option installs only the plasmoid interface from a local file.
 
-### 1. Generar el archivo .plasmoid
+### 1. Generate the .plasmoid File
 
 ```bash
 chmod +x build-plasmoid.sh
 ./build-plasmoid.sh
 ```
 
-Esto crea `switch-turbo-boost.plasmoid` desde la carpeta `package/`. El archivo contiene `metadata.json` en la raiz del paquete y no incluye la carpeta `package/` dentro del zip.
+This creates `switch-turbo-boost.plasmoid` from the `package/` directory. The file contains `metadata.json` at the package root and does not include the `package/` directory inside the zip.
 
-### 2. Instalar desde Plasma
+### 2. Install From Plasma
 
-1. Abrir Plasma.
-2. Agregar elementos graficos.
-3. Instalar elemento grafico desde archivo local.
-4. Seleccionar `switch-turbo-boost.plasmoid`.
+1. Open Plasma.
+2. Add Widgets.
+3. Install Widget From Local File.
+4. Select `switch-turbo-boost.plasmoid`.
 
-**Advertencia:** la instalacion visual solo instala la interfaz del plasmoid. Para que el boton ON/OFF funcione con permisos del sistema, ejecute tambien:
-
-```bash
-chmod +x install-backend.sh scripts/*.sh
-./install-backend.sh
-```
-
-Durante este paso se solicitara autenticacion de administrador mediante PolicyKit.
-
-## Instalacion completa por script
-
-### 1. Dar permisos de ejecucion
+**Warning:** visual installation only installs the plasmoid interface. For the ON/OFF button to work with system permissions, also run:
 
 ```bash
-chmod +x install.sh install-plasmoid.sh install-backend.sh scripts/*.sh
+chmod +x install.sh
+./install.sh --backend-only
 ```
 
-### 2. Ejecutar el instalador
+During this step, PolicyKit will request administrator authentication.
+
+## Full Installation by Script
+
+### 1. Grant Execution Permissions
+
+```bash
+chmod +x install.sh
+```
+
+### 2. Run the Installer
 
 ```bash
 ./install.sh
 ```
 
-Durante la instalacion del plasmoide se puede elegir el idioma de la interfaz. Tambien puede indicarse explicitamente:
+During the plasmoid installation step, choose the interface language when prompted. You can also pass the language explicitly:
 
 ```bash
-./install.sh --language es
 ./install.sh --language en
+./install.sh --language es
+./install.sh --language pt
 ./install.sh --language auto
-./install-plasmoid.sh --language es
-./install-plasmoid.sh --language en
-./install-plasmoid.sh --language auto
 ```
 
-Durante este paso se solicitara autenticacion de administrador mediante PolicyKit.
+You can also choose which part to install:
 
-El instalador copia:
+```bash
+./install.sh --full --language en
+./install.sh --plasmoid-only --language pt
+./install.sh --backend-only
+./install.sh --mode backend
+```
 
-- El plasmoide a `~/.local/share/plasma/plasmoids/org.punchisoft.switchturbo/`
-- Los scripts del sistema a `/usr/local/libexec/switch-turbo-boost-plasmoid/`, incluidos `get-cpu-info.sh` y `get-cpu-vendor.sh`
-- La politica PolicyKit a `/usr/share/polkit-1/actions/org.punchisoft.switchturbo.policy`
+To reload Plasma Shell automatically after installing or updating the interface:
 
-### 3. Recargar Plasma Shell
+```bash
+./install.sh --full --language en --reload-plasma
+./install.sh --plasmoid-only --reload-plasma
+```
 
-Despues de instalar o actualizar el plasmoid puede ser necesario recargar Plasma Shell para que KDE detecte cambios en el widget.
+At startup, the installer warns when the selected mode includes the privileged backend. During that backend step, PolicyKit will request administrator authentication.
 
-#### Opcion 1 - Cerrar sesion e iniciar sesion nuevamente
+If authentication is canceled during a full installation, the local plasmoid interface may already be installed, but the ON/OFF button will not work until you install the backend with `./install.sh --backend-only`.
 
-Cerrar sesion y volver a iniciar sesion es la forma mas segura de recargar completamente Plasma sin depender de comandos de terminal.
+`install.sh` installs directly from the `package/` directory; it does not generate the `switch-turbo-boost.plasmoid` file. Use `build-plasmoid.sh` only when you want to install from a local file through the Plasma graphical interface.
 
-Esta opcion es recomendada para usuarios que no quieran usar terminal.
+The installer copies:
 
-#### Opcion 2 - Usar kquitapp6 + kstart
+- The plasmoid to `~/.local/share/plasma/plasmoids/org.punchisoft.switchturbo/`
+- The system scripts to `/usr/local/libexec/switch-turbo-boost-plasmoid/`, including `get-cpu-info.sh` and `get-cpu-vendor.sh`
+- The PolicyKit policy to `/usr/share/polkit-1/actions/org.punchisoft.switchturbo.policy`
 
-Esta opcion fue probada en Fedora KDE Plasma 6. Reinicia Plasma Shell sin cerrar toda la sesion:
+### 3. Reload Plasma Shell
+
+After installing or updating the plasmoid, you may need to reload Plasma Shell so KDE detects widget changes.
+
+In an interactive terminal, the installer asks whether to reload Plasma Shell at the end. You can force it with `--reload-plasma` or suppress the question with `--no-reload-plasma`; internally it tries `kquitapp6` with `kstart6` or `kstart`, and falls back to `plasmashell --replace` when needed.
+
+#### Option 1 - Log Out and Log In Again
+
+Logging out and back in is the safest way to fully reload Plasma without relying on terminal commands.
+
+This option is recommended for users who do not want to use the terminal.
+
+#### Option 2 - Use kquitapp6 + kstart
+
+This option was tested on Fedora KDE Plasma 6. It restarts Plasma Shell without closing the whole session:
 
 ```bash
 kquitapp6 plasmashell
 kstart plasmashell
 ```
 
-#### Opcion 3 - Usar nohup con plasmashell --replace
+#### Option 3 - Use nohup With plasmashell --replace
 
-Use esta alternativa si `kstart` no esta disponible. `nohup` evita que Plasma quede ligado a la terminal:
+Use this alternative if `kstart` is not available. `nohup` keeps Plasma from being tied to the terminal:
 
 ```bash
 kquitapp6 plasmashell
 nohup plasmashell --replace >/tmp/plasmashell.log 2>&1 &
 ```
 
-No todos los sistemas KDE incluyen los mismos comandos. Si `kstart` no existe, use la alternativa con `nohup` o cierre sesion.
+Not all KDE systems include the same commands. If `kstart` does not exist, use the `nohup` alternative or log out.
 
-### 4. Agregar el plasmoide al panel
+### 4. Add the Plasmoid to the Panel
 
-1. Clic derecho sobre el panel de Plasma.
-2. Seleccionar **Agregar o administrar widgets**.
-3. Buscar **Switch Turbo Boost**.
-4. Arrastrarlo al panel.
+1. Right-click the Plasma panel.
+2. Select **Add or Manage Widgets**.
+3. Search for **Switch Turbo Boost**.
+4. Drag it to the panel.
 
-## Configuracion
+## Settings
 
-Desde la configuracion del plasmoide se puede ajustar:
+From the plasmoid settings, you can adjust:
 
-- Icono mostrado en el panel.
-- Icono del procesador mostrado en el menu flotante, con opciones automaticas, AMD, Intel, CPU, chip o un icono personalizado del sistema.
-- Idioma de la interfaz.
-- Apariencia del menu flotante: tema automatico y colores personalizados.
-- Ancho y alto preferidos del menu flotante.
+- Icon shown in the panel.
+- Processor icon shown in the popup menu, with automatic, AMD, Intel, CPU, chip, or custom system icon options.
+- Interface language.
+- Popup appearance: automatic theme and custom colors.
+- Preferred popup width and height.
 
-## Probar funcionamiento
+## Test Functionality
 
-Consultar estado:
+Check status:
 
 ```bash
 /usr/local/libexec/switch-turbo-boost-plasmoid/get-turbo-status.sh
 ```
 
-Detectar fabricante:
+Detect vendor:
 
 ```bash
 /usr/local/libexec/switch-turbo-boost-plasmoid/get-cpu-vendor.sh
 ```
 
-Detectar fabricante y modelo:
+Detect vendor and model:
 
 ```bash
 /usr/local/libexec/switch-turbo-boost-plasmoid/get-cpu-info.sh
 ```
 
-Activar Turbo Boost:
+Turn Turbo Boost on:
 
 ```bash
 pkexec /usr/local/libexec/switch-turbo-boost-plasmoid/set-turbo-on.sh
 ```
 
-Desactivar Turbo Boost:
+Turn Turbo Boost off:
 
 ```bash
 pkexec /usr/local/libexec/switch-turbo-boost-plasmoid/set-turbo-off.sh
 ```
 
-## Desinstalacion
+## Uninstallation
 
 ```bash
 chmod +x uninstall.sh
 ./uninstall.sh
 ```
 
-Si el widget seguia cargado en el panel, consulte la seccion **Recargar Plasma Shell**.
+Optional language and Plasma reload:
+
+```bash
+./uninstall.sh --language en --reload-plasma
+./uninstall.sh --help
+```
+
+During the system cleanup step, PolicyKit will request administrator authentication before removing the helpers and policy.
+If authentication is canceled, the local plasmoid interface may already be removed, but the system helpers and PolicyKit policy may remain installed.

@@ -3,58 +3,60 @@ SPDX-FileCopyrightText: 2026 Punchisoft
 SPDX-License-Identifier: GPL-3.0-or-later
 -->
 
+[English](README.md) | [Español](README.es.md) | [Português](README.pt.md)
+
 # Switch Turbo Boost Plasmoid
 
-Plasmoide liviano para el entorno de escritorio KDE Plasma 6. Muestra el estado de Turbo Boost en el panel y permite activarlo o desactivarlo con autenticacion de PolicyKit.
+Lightweight plasmoid for the KDE Plasma 6 desktop. It shows the Turbo Boost status in the panel and lets you turn it on or off with PolicyKit authentication.
 
-Este proyecto es complementario a Switch Turbo Monitor. No reemplaza ni reescribe la aplicacion principal; solo cubre el interruptor de Turbo Boost.
+This project complements Switch Turbo Monitor. It does not replace or rewrite the main application; it only provides the Turbo Boost switch.
 
-## Caracteristicas
+## Features
 
-- Interfaz QML para Plasma 6.
-- Icono compacto en el panel.
-- Menu flotante con estado, descripcion y control ON/OFF.
-- Indicador verde cuando Turbo Boost esta ON.
-- Indicador gris cuando Turbo Boost esta OFF.
-- Iconos locales de procesador basados en Papirus Icon Theme.
-- Texto AMD, Intel o CPU detectada segun el procesador.
-- Nombre del modelo de CPU debajo del fabricante detectado cuando esta disponible.
-- Lectura al cargar, despues de cambiar el estado y cada 15 segundos.
-- Configuracion de icono del panel, icono del procesador automatico o personalizado, idioma y tamano del menu flotante.
-- Apariencia automatica segun el tema de Plasma, con opcion de colores personalizados.
-- Scripts externos Bash para consultar y modificar `/sys`.
-- Script externo Bash para detectar fabricante de CPU desde `/proc/cpuinfo`.
-- Cambios con `pkexec` y politica PolicyKit dedicada.
-- No usa `sudo` dentro de QML.
+- QML interface for Plasma 6.
+- Compact panel icon.
+- Popup menu with status, description, and ON/OFF control.
+- Green indicator when Turbo Boost is ON.
+- Gray indicator when Turbo Boost is OFF.
+- Local processor icons based on Papirus Icon Theme.
+- AMD, Intel, or CPU text detected from the processor.
+- CPU model name below the detected vendor when available.
+- Status refresh on startup, after state changes, and every 15 seconds.
+- Settings for panel icon, automatic or custom processor icon, language, and popup size.
+- Automatic appearance based on the Plasma theme, with optional custom colors.
+- External Bash scripts to read and modify `/sys`.
+- External Bash script to detect the CPU vendor from `/proc/cpuinfo`.
+- State changes through `pkexec` and a dedicated PolicyKit policy.
+- Does not use `sudo` from QML.
 
-## Compatibilidad
+## Compatibility
 
-- Entorno de escritorio KDE Plasma 6.
-- Sesion Plasma en Wayland o X11.
-- Linux con PolicyKit y `pkexec`.
-- CPU/kernel con alguno de estos controles:
+- KDE Plasma 6 desktop.
+- Plasma session on Wayland or X11.
+- Linux with PolicyKit and `pkexec`.
+- CPU/kernel with one of these controls:
   - `/sys/devices/system/cpu/cpufreq/boost`
   - `/sys/devices/system/cpu/intel_pstate/no_turbo`
 
-## Capturas
+## Screenshots
 
-| Menu flotante | Selector de widgets |
+| Popup menu | Widget selector |
 | --- | --- |
-| ![Menu flotante de Switch Turbo Boost](Images/00.png) | ![Switch Turbo Boost en el selector de widgets](Images/01.png) |
+| ![Switch Turbo Boost popup menu](Images/00.png) | ![Switch Turbo Boost in the widget selector](Images/01.png) |
 
-| Preferencias | Acerca de |
+| Preferences | About |
 | --- | --- |
-| ![Preferencias de Switch Turbo Boost](Images/02.png) | ![Pagina Acerca de Switch Turbo Boost](Images/03.png) |
+| ![Switch Turbo Boost preferences](Images/02.png) | ![Switch Turbo Boost About page](Images/03.png) |
 
-| Atajos de teclado |
+| Keyboard shortcuts |
 | --- |
-| ![Atajos de teclado de Switch Turbo Boost](Images/04.png) |
+| ![Switch Turbo Boost keyboard shortcuts](Images/04.png) |
 
-Las capturas del proyecto estan en `Images/`. No forman parte del paquete instalable del plasmoide; se incluyen para documentacion del repositorio.
+Project screenshots are stored in `Images/`. They are not part of the installable plasmoid package; they are included for repository documentation.
 
-El documento breve para publicar la actualizacion 0.2.0 esta en `docs/release-post-0.2.0.pdf`.
+The short document for publishing the 0.2.0 update is in `docs/release-post-0.2.0.pdf`.
 
-## Estructura
+## Structure
 
 ```text
 switch-turbo-boost-plasmoid/
@@ -89,179 +91,226 @@ switch-turbo-boost-plasmoid/
 ├── LICENSES/
 │   └── GPL-3.0-or-later.txt
 ├── build-plasmoid.sh
-├── install-plasmoid.sh
-├── install-backend.sh
 ├── uninstall.sh
 ├── INSTALL.md
-├── INSTALL.en.md
+├── INSTALL.es.md
+├── INSTALL.pt.md
 ├── README.md
-├── README.en.md
+├── README.es.md
+├── README.pt.md
 └── install.sh
 ```
 
-## Instalacion
+## Installation
 
-Para una guia paso a paso, consulte `INSTALL.md`.
+For a step-by-step guide, see `INSTALL.md`.
 
-### Scripts de instalacion
+### Installer
 
-El proyecto separa la interfaz del plasmoide y los helpers del sistema:
+Use `install.sh` as the single installation entry point:
 
-| Script | Que hace | Cuando usarlo |
+| Script | What it does | When to use it |
 | --- | --- | --- |
-| `install-plasmoid.sh` | Instala solo la interfaz QML en `~/.local/share/plasma/plasmoids/org.punchisoft.switchturbo/`. | Cuando se modifican archivos de `package/`, como QML, iconos, textos, idioma, configuracion o metadata. |
-| `install-backend.sh` | Instala los scripts de `scripts/` en `/usr/local/libexec/switch-turbo-boost-plasmoid/` y la politica PolicyKit en `/usr/share/polkit-1/actions/org.punchisoft.switchturbo.policy`. | Cuando se modifican los helpers Bash o la politica PolicyKit. Requiere autenticacion mediante `pkexec`. |
-| `install.sh` | Ejecuta `install-plasmoid.sh` y despues `install-backend.sh`. | Para una instalacion completa o para asegurarse de actualizar interfaz, backend y PolicyKit en una sola pasada. |
-| `uninstall.sh` | Elimina el plasmoide local, los helpers del sistema y la politica PolicyKit. | Para desinstalar completamente el proyecto. |
+| `install.sh` | Main installer with options for full installation, plasmoid only, or backend only. | Recommended for end users. |
+| `uninstall.sh` | Removes the local plasmoid, system helpers, and PolicyKit policy. | Use it to completely uninstall the project. |
+| `build-plasmoid.sh` | Generates `switch-turbo-boost.plasmoid` from `package/`. | Only for visual installation from a local file. |
 
-### Descargar desde Git
+### Command Reference
+
+| Command | What it does |
+| --- | --- |
+| `chmod +x install.sh` | Grants execution permission to the main installer. |
+| `./install.sh --help` | Shows all installer options. |
+| `./install.sh` | Runs the default full installation. |
+| `./install.sh --full --language en` | Installs the plasmoid interface and privileged backend, using English for the interface default. |
+| `./install.sh --plasmoid-only --language pt` | Installs only the local plasmoid interface. |
+| `./install.sh --backend-only` | Installs only the privileged helpers and PolicyKit policy. Useful after visual `.plasmoid` installation or after canceling backend authentication. |
+| `./install.sh --full --reload-plasma` | Installs everything and reloads Plasma Shell after installation. |
+| `./install.sh --no-reload-plasma` | Installs without asking whether to reload Plasma Shell. |
+| `chmod +x build-plasmoid.sh && ./build-plasmoid.sh` | Builds `switch-turbo-boost.plasmoid` for visual installation from KDE Plasma. |
+| `chmod +x uninstall.sh` | Grants execution permission to the uninstaller. |
+| `./uninstall.sh --help` | Shows all uninstaller options. |
+| `./uninstall.sh --language en --reload-plasma` | Uninstalls the plasmoid, helpers, and policy, then reloads Plasma Shell. |
+
+### Download From Git
 
 ```bash
 git clone https://github.com/PunchiSoft/switch-turbo-boost-plasmoid.git
 cd switch-turbo-boost-plasmoid
 ```
 
-### Instalacion visual desde KDE Plasma
+### Visual Installation From KDE Plasma
 
-Esta opcion genera un archivo `.plasmoid` instalable desde la interfaz grafica de KDE Plasma:
+This option creates a `.plasmoid` file that can be installed from the KDE Plasma graphical interface:
 
 ```bash
 chmod +x build-plasmoid.sh
 ./build-plasmoid.sh
 ```
 
-Luego:
+Then:
 
-1. Abrir Plasma.
-2. Agregar elementos graficos.
-3. Instalar elemento grafico desde archivo local.
-4. Seleccionar `switch-turbo-boost.plasmoid`.
+1. Open Plasma.
+2. Add Widgets.
+3. Install Widget From Local File.
+4. Select `switch-turbo-boost.plasmoid`.
 
-El archivo `switch-turbo-boost.plasmoid` se genera desde el contenido de `package/`, por lo que `metadata.json` queda en la raiz del paquete y no se incluye la carpeta `package/` dentro del zip.
+The `switch-turbo-boost.plasmoid` file is generated from the contents of `package/`, so `metadata.json` is placed at the package root and the `package/` directory itself is not included in the zip.
 
-**Advertencia:** la instalacion visual solo instala la interfaz del plasmoid. Para que el boton ON/OFF funcione con permisos del sistema, ejecute tambien:
+**Warning:** visual installation only installs the plasmoid interface. For the ON/OFF button to work with system permissions, also install the backend:
 
 ```bash
-chmod +x install-backend.sh scripts/*.sh
-./install-backend.sh
+chmod +x install.sh
+./install.sh --backend-only
 ```
 
-### Instalacion completa por script
+### Full Installation by Script
 
-Desde esta carpeta:
+From this directory:
 
 ```bash
-chmod +x install.sh install-plasmoid.sh install-backend.sh scripts/*.sh
+chmod +x install.sh
 ./install.sh
 ```
 
-Durante la instalacion del plasmoide se puede elegir el idioma de la interfaz. Tambien puede indicarse explicitamente:
+During the plasmoid installation step, you can choose the interface language. You can also pass it explicitly:
 
 ```bash
-./install.sh --language es
 ./install.sh --language en
+./install.sh --language es
+./install.sh --language pt
 ./install.sh --language auto
-./install-plasmoid.sh --language es
-./install-plasmoid.sh --language en
-./install-plasmoid.sh --language auto
 ```
 
-El instalador copia el paquete QML en:
+The installer can also choose which part to install:
+
+```bash
+./install.sh --full --language en
+./install.sh --plasmoid-only --language pt
+./install.sh --backend-only
+```
+
+To reload Plasma Shell automatically after installing or updating the interface, add:
+
+```bash
+./install.sh --full --language en --reload-plasma
+./install.sh --plasmoid-only --reload-plasma
+```
+
+`install.sh` installs directly from `package/`; it does not generate `switch-turbo-boost.plasmoid`. Use `build-plasmoid.sh` only for visual installation from a local file.
+
+The installer copies the QML package to:
 
 ```text
 ~/.local/share/plasma/plasmoids/org.punchisoft.switchturbo/
 ```
 
-Tambien instala, mediante `pkexec`, los helpers en:
+It also installs, through `pkexec`, the helpers to:
 
 ```text
 /usr/local/libexec/switch-turbo-boost-plasmoid/
 ```
 
-y la politica PolicyKit en:
+and the PolicyKit policy to:
 
 ```text
 /usr/share/polkit-1/actions/org.punchisoft.switchturbo.policy
 ```
 
-Despues agregue **Switch Turbo Boost** al panel desde el selector de widgets de Plasma. Si no aparece inmediatamente, consulte la seccion **Recargar Plasma Shell**.
+At startup, `install.sh` warns when the selected mode includes the privileged backend and explains that PolicyKit will ask for the administrator password. If authentication is canceled during a full installation, the local plasmoid interface may already be installed, but the ON/OFF button will not work until you install the backend:
 
-## Recargar Plasma Shell
+```bash
+./install.sh --backend-only
+```
 
-Despues de instalar o actualizar el plasmoid puede ser necesario recargar Plasma Shell para que KDE detecte cambios en el widget.
+Then add **Switch Turbo Boost** to the panel from Plasma's widget selector. If it does not appear immediately, see **Reload Plasma Shell**.
 
-### Opcion 1 - Cerrar sesion e iniciar sesion nuevamente
+## Reload Plasma Shell
 
-Cerrar sesion y volver a iniciar sesion es la forma mas segura de recargar completamente Plasma sin depender de comandos de terminal.
+After installing or updating the plasmoid, you may need to reload Plasma Shell so KDE detects widget changes.
 
-Esta opcion es recomendada para usuarios que no quieran usar terminal.
+In an interactive terminal, the installer asks whether to reload Plasma Shell at the end. You can force it with `--reload-plasma` or suppress the question with `--no-reload-plasma`; internally it tries `kquitapp6` with `kstart6` or `kstart`, and falls back to `plasmashell --replace` when needed.
 
-### Opcion 2 - Usar kquitapp6 + kstart
+### Option 1 - Log Out and Log In Again
 
-Esta opcion fue probada en Fedora KDE Plasma 6. Reinicia Plasma Shell sin cerrar toda la sesion:
+Logging out and back in is the safest way to fully reload Plasma without relying on terminal commands.
+
+This option is recommended for users who do not want to use the terminal.
+
+### Option 2 - Use kquitapp6 + kstart
+
+This option was tested on Fedora KDE Plasma 6. It restarts Plasma Shell without closing the whole session:
 
 ```bash
 kquitapp6 plasmashell
 kstart plasmashell
 ```
 
-### Opcion 3 - Usar nohup con plasmashell --replace
+### Option 3 - Use nohup With plasmashell --replace
 
-Use esta alternativa si `kstart` no esta disponible. `nohup` evita que Plasma quede ligado a la terminal:
+Use this alternative if `kstart` is not available. `nohup` keeps Plasma from being tied to the terminal:
 
 ```bash
 kquitapp6 plasmashell
 nohup plasmashell --replace >/tmp/plasmashell.log 2>&1 &
 ```
 
-No todos los sistemas KDE incluyen los mismos comandos. Si `kstart` no existe, use la alternativa con `nohup` o cierre sesion.
+Not all KDE systems include the same commands. If `kstart` does not exist, use the `nohup` alternative or log out.
 
-## Pruebas manuales
+## Manual Tests
 
-Consultar estado:
+Check status:
 
 ```bash
 /usr/local/libexec/switch-turbo-boost-plasmoid/get-turbo-status.sh
 ```
 
-Activar Turbo Boost:
+Turn Turbo Boost on:
 
 ```bash
 pkexec /usr/local/libexec/switch-turbo-boost-plasmoid/set-turbo-on.sh
 ```
 
-Desactivar Turbo Boost:
+Turn Turbo Boost off:
 
 ```bash
 pkexec /usr/local/libexec/switch-turbo-boost-plasmoid/set-turbo-off.sh
 ```
 
-## Seguridad
+## Security
 
-El QML no escribe directamente en `/sys` ni ejecuta `sudo`. Las acciones de cambio llaman a `pkexec` sobre scripts instalados en una ruta fija bajo `/usr/local/libexec`. PolicyKit limita la autorizacion a esos ejecutables concretos.
+The QML does not write directly to `/sys` or run `sudo`. State-changing actions call `pkexec` for scripts installed in a fixed path under `/usr/local/libexec`. PolicyKit limits authorization to those specific executables.
 
-La lectura del estado no requiere privilegios. La escritura si requiere autenticacion administrativa porque modifica controles del kernel.
+Reading the status does not require privileges. Writing requires administrative authentication because it modifies kernel controls.
 
-## Desinstalacion
+## Uninstallation
 
 ```bash
 chmod +x uninstall.sh
 ./uninstall.sh
 ```
 
-Luego reinicie Plasma si el widget seguia cargado.
+You can also choose the message language and ask the script to reload Plasma Shell after removing the widget:
 
-## Licencia
+```bash
+./uninstall.sh --language en --reload-plasma
+./uninstall.sh --help
+```
+
+During the system cleanup step, PolicyKit will request administrator authentication before removing the helpers and policy.
+If authentication is canceled, the local plasmoid interface may already be removed, but the system helpers and PolicyKit policy may remain installed.
+
+## License
 
 Copyright 2026 Punchisoft.
 
-Distribuido bajo GPL-3.0-or-later. Consulte `LICENSES/GPL-3.0-or-later.txt`.
+Distributed under GPL-3.0-or-later. See `LICENSES/GPL-3.0-or-later.txt`.
 
-Los iconos de procesador en `package/contents/images/` estan basados en Papirus Icon Theme de Papirus Development Team:
+The processor icons in `package/contents/images/` are based on Papirus Icon Theme by the Papirus Development Team:
 
-- Fuente: https://github.com/PapirusDevelopmentTeam/papirus-icon-theme
-- Licencia: GPL-3.0-only, consulte `LICENSES/GPL-3.0-only.txt` y los archivos `.license` junto a cada SVG.
+- Source: https://github.com/PapirusDevelopmentTeam/papirus-icon-theme
+- License: GPL-3.0-only, see `LICENSES/GPL-3.0-only.txt` and the `.license` files next to each SVG.
 
-## Advertencia
+## Warning
 
-Cambiar Turbo Boost puede afectar rendimiento, consumo energetico, temperatura y ruido del equipo. Use este plasmoide solo si comprende el efecto esperado en su hardware.
+Changing Turbo Boost may affect performance, power consumption, temperature, and system noise. Use this plasmoid only if you understand the expected effect on your hardware.

@@ -9,6 +9,7 @@
         "Category": "System Information",
         "Description": "Show and toggle CPU Turbo Boost from the Plasma panel",
         "Description[es]": "Muestra y alterna Turbo Boost de la CPU desde el panel de Plasma",
+        "Description[pt]": "Mostra e alterna o Turbo Boost da CPU pelo painel do Plasma",
         "EnabledByDefault": true,
         "FormFactors": [
             "desktop"
@@ -18,6 +19,7 @@
         "License": "GPL-3.0-or-later",
         "Name": "Switch Turbo Boost",
         "Name[es]": "Switch Turbo Boost",
+        "Name[pt]": "Switch Turbo Boost",
         "Version": "0.2.0",
         "Website": "https://github.com/PunchiSoft/switch-turbo-boost-plasmoid"
     },
