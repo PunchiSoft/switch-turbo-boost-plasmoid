@@ -21,7 +21,7 @@ Este projeto complementa o Switch Turbo Monitor. Ele nao substitui nem reescreve
 - Icones locais de processador baseados no Papirus Icon Theme.
 - Texto AMD, Intel ou CPU detectado conforme o processador.
 - Nome do modelo da CPU abaixo do fabricante detectado quando disponivel.
-- Leitura ao carregar, depois de alterar o estado e a cada 15 segundos.
+- Leitura ao carregar, depois de alterar o estado, a cada 15 segundos e pelo botao Atualizar do menu flutuante.
 - Configuracao de icone do painel, icone do processador automatico ou personalizado, idioma e tamanho do menu flutuante.
 - Aparencia automatica conforme o tema do Plasma, com opcao de cores personalizadas.
 - Scripts Bash externos para consultar e modificar `/sys`.

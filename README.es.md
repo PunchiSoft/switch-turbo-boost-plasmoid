@@ -21,7 +21,7 @@ Este proyecto es complementario a Switch Turbo Monitor. No reemplaza ni reescrib
 - Iconos locales de procesador basados en Papirus Icon Theme.
 - Texto AMD, Intel o CPU detectada segun el procesador.
 - Nombre del modelo de CPU debajo del fabricante detectado cuando esta disponible.
-- Lectura al cargar, despues de cambiar el estado y cada 15 segundos.
+- Lectura al cargar, despues de cambiar el estado, cada 15 segundos y desde el boton Refrescar del menu flotante.
 - Configuracion de icono del panel, icono del procesador automatico o personalizado, idioma y tamano del menu flotante.
 - Apariencia automatica segun el tema de Plasma, con opcion de colores personalizados.
 - Scripts externos Bash para consultar y modificar `/sys`.
@@ -54,8 +54,6 @@ Este proyecto es complementario a Switch Turbo Monitor. No reemplaza ni reescrib
 
 Las capturas del proyecto estan en `Images/`. No forman parte del paquete instalable del plasmoide; se incluyen para documentacion del repositorio.
 
-El documento breve para publicar la actualizacion 0.2.0 esta en `docs/release-post-0.2.0.pdf`.
-
 ## Estructura
 
 ```text
@@ -67,6 +65,7 @@ switch-turbo-boost-plasmoid/
 ├── package/contents/ui/TurboSwitch.qml
 ├── package/contents/ui/config/ConfigGeneral.qml
 ├── package/contents/images/
+│   ├── kfoldersync.svg
 │   ├── turbo-chip.svg
 │   ├── vendor-amd.svg
 │   ├── vendor-cpu.svg
@@ -77,9 +76,6 @@ switch-turbo-boost-plasmoid/
 │   ├── 02.png
 │   ├── 03.png
 │   └── 04.png
-├── docs/
-│   ├── release-post-0.2.0.html
-│   └── release-post-0.2.0.pdf
 ├── scripts/
 │   ├── get-cpu-info.sh
 │   ├── get-cpu-vendor.sh
